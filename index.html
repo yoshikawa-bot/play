@@ -1,16 +1,93 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Player Yoshikawa</title>
     <style>
-        body { background: #000; margin: 0; text-align: center; color: white; }
-        iframe { width: 100%; height: 100vh; border: none; }
-        .error { color: #e50914; margin-top: 20px; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a1a, #2c2c2c);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Arial', sans-serif;
+            color: #ffffff;
+            overflow: hidden;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #00ff88, #00b7ff);
+            animation: neonGlow 2s ease-in-out infinite alternate;
+        }
+
+        iframe {
+            width: 100%;
+            height: 80vh;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .error {
+            color: #ff4d4d;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.2em;
+            text-shadow: 0 0 5px rgba(255, 77, 77, 0.5);
+        }
+
+        @keyframes neonGlow {
+            from {
+                box-shadow: 0 0 10px #00ff88, 0 0 20px #00b7ff;
+            }
+            to {
+                box-shadow: 0 0 20px #00ff88, 0 0 30px #00b7ff;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                width: 95%;
+                padding: 15px;
+            }
+
+            iframe {
+                height: 60vh;
+            }
+        }
     </style>
 </head>
 <body>
-    <iframe id="player"></iframe>
-    <div id="error" class="error"></div>
+    <div class="container">
+        <iframe id="player"></iframe>
+        <div id="error" class="error"></div>
+    </div>
 
     <script>
         (async () => {
