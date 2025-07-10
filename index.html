@@ -1,90 +1,31 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Player Yoshikawa</title>
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background: #000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            font-family: Arial, sans-serif;
-            color: white;
-        }
-        .player-container {
-            width: 100%;
-            max-width: 900px;
-            text-align: center;
-        }
+        body { background: #000; margin: 0; text-align: center; }
         iframe {
             width: 100%;
-            height: 500px;
+            height: 100vh;
             border: none;
-            border-radius: 8px;
-        }
-        .loading {
-            font-size: 18px;
-        }
-        .error {
-            color: #e50914;
-            font-size: 18px;
         }
     </style>
 </head>
 <body>
-    <div class="player-container">
-        <div id="loading" class="loading">Carregando player...</div>
-        <iframe id="player" style="display: none;"></iframe>
-        <div id="error" class="error" style="display: none;"></div>
-    </div>
+    <iframe id="player"></iframe>
 
     <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            const params = new URLSearchParams(window.location.search);
-            const imdbId = params.get('imdb_id');
-            const tmdbId = params.get('tmdb_id');
-            const season = params.get('season');
-            const episode = params.get('episode');
-
-            const loadingElement = document.getElementById('loading');
-            const playerElement = document.getElementById('player');
-            const errorElement = document.getElementById('error');
-
-            try {
-                let apiUrl;
-                
-                if (imdbId) {
-                    apiUrl = `https://playerflixapi.com/filme/${imdbId}`;
-                } else if (tmdbId && season && episode) {
-                    apiUrl = `https://playerflixapi.com/serie/${tmdbId}/${season}/${episode}`;
-                } else {
-                    throw new Error('Parâmetros inválidos. Forneça imdb_id para filmes ou tmdb_id, season e episode para séries.');
-                }
-
-                // Faz a requisição diretamente para a API (se CORS permitir)
-                const response = await fetch(apiUrl);
-                
-                if (!response.ok) {
-                    throw new Error(`Erro na API: ${response.statusText}`);
-                }
-
-                const playerUrl = response.url;
-                playerElement.src = playerUrl;
-                playerElement.style.display = 'block';
-                loadingElement.style.display = 'none';
-
-            } catch (error) {
-                loadingElement.style.display = 'none';
-                errorElement.textContent = `Erro: ${error.message}`;
-                errorElement.style.display = 'block';
-                console.error('Erro:', error);
-            }
-        });
+        const params = new URLSearchParams(window.location.search);
+        const playerUrl = decodeURIComponent(params.get('url'));
+        
+        if (playerUrl) {
+            document.getElementById('player').src = playerUrl;
+        } else {
+            document.body.innerHTML = `
+                <h1 style="color: #e50914;">Erro: URL não especificada</h1>
+                <a href="javascript:history.back()">Voltar</a>
+            `;
+        }
     </script>
 </body>
 </html>
