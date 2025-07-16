@@ -467,19 +467,49 @@
             const episode = params.get('episode');
             const playerError = document.getElementById('playerError');
             const playerWrapper = document.querySelector('.player-wrapper');
+            const tmdbApiKey = '66223dd3ad2885cf1129b181c7826287'; // Sua chave da API TMDB
+            const defaultBackdrop = 'https://yoshikawa-bot.github.io/cache/images/6747105c.jpg'; // Imagem padrão
 
             try {
                 let playerUrl;
+                let backdropUrl = defaultBackdrop; // Fallback para a imagem padrão
                 playerWrapper.classList.add('loading');
 
+                // Função para atualizar o fundo
+                function updateBackground(imageUrl) {
+                    document.body.style.backgroundImage = `url('${imageUrl}'), linear-gradient(to bottom, #1a1a1a, #000)`;
+                }
+
+                // Buscar imagem de fundo para filmes (usando imdb_id)
                 if (imdbId) {
                     playerUrl = `https://playerflixapi.com/filme/${imdbId}`;
-                } else if (tmdbId && season && episode) {
+                    // Buscar detalhes do filme no TMDB usando o imdb_id
+                    const findUrl = `https://api.themoviedb.org/3/find/${imdbId}?api_key=${tmdbApiKey}&external_source=imdb_id&language=pt-BR`;
+                    const findData = await (await fetch(findUrl)).json();
+                    if (findData.movie_results?.length) {
+                        const movie = findData.movie_results[0];
+                        if (movie.backdrop_path) {
+                            backdropUrl = `https://image.tmdb.org/t/p/original${movie.backdrop_path}`;
+                        }
+                    }
+                }
+                // Buscar imagem de fundo para séries (usando tmdb_id)
+                else if (tmdbId && season && episode) {
                     playerUrl = `https://playerflixapi.com/serie/${tmdbId}/${season}/${episode}`;
+                    // Buscar detalhes da série no TMDB usando o tmdb_id
+                    const seriesUrl = `https://api.themoviedb.org/3/tv/${tmdbId}?api_key=${tmdbApiKey}&language=pt-BR`;
+                    const seriesData = await (await fetch(seriesUrl)).json();
+                    if (seriesData.backdrop_path) {
+                        backdropUrl = `https://image.tmdb.org/t/p/original${seriesData.backdrop_path}`;
+                    }
                 } else {
                     throw new Error('Parâmetros inválidos. Use imdb_id (filmes) ou tmdb_id+season+episode (séries)');
                 }
 
+                // Atualizar o fundo com a imagem obtida ou a padrão
+                updateBackground(backdropUrl);
+
+                // Definir a URL do player
                 document.getElementById('player').src = playerUrl;
 
             } catch (error) {
