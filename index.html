@@ -6,11 +6,11 @@
     <meta name="description" content="Yoshikawa Streaming - Parte dos sistemas Yoshikawa.">
     <meta property="og:title" content="Yoshikawa Player">
     <meta property="og:description" content="Assista a filmes e séries com o Yoshikawa Player, parte dos sistemas Yoshikawa.">
-    <meta property="og:image" content="https://yoshikawa-bot.github.io/cache/images/6747105c.jpg">
+    <meta property="og:image" content="https://yoshikawa-bot.github.io/cache/images/9e8ac284.jpg">
     <meta property="og:url" content="https://seu-site.com">
     <meta name="twitter:card" content="summary_large_image">
     <title>Yoshikawa Player</title>
-    <link rel="preload" href="https://yoshikawa-bot.github.io/cache/images/6747105c.jpg" as="image">
+    <link rel="preload" href="https://yoshikawa-bot.github.io/cache/images/9e8ac284.jpg" as="image">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         * {
@@ -209,119 +209,6 @@
             border-radius: 12px;
             z-index: 4;
         }
-        .player-loading {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 5;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            padding: 1rem 1.5rem;
-            border-radius: 12px;
-            background: var(--bg-color);
-            color: var(--text);
-            font-size: 1rem;
-            font-weight: 500;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        .player-wrapper.loading .player-loading {
-            display: flex;
-            opacity: 1;
-        }
-        .player-loading::before {
-            content: '';
-            width: 24px;
-            height: 24px;
-            border: 3px solid var(--text);
-            border-top: 3px solid #007aff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .player-loading .glass-filter,
-        .player-loading .glass-overlay,
-        .player-loading .glass-specular {
-            position: absolute;
-            inset: 0;
-            border-radius: inherit;
-        }
-        .player-loading .glass-filter {
-            z-index: 1;
-            backdrop-filter: blur(4px);
-            filter: url(#glass-distortion) saturate(120%) brightness(1.15);
-        }
-        .player-loading .glass-overlay {
-            z-index: 2;
-            background: var(--bg-color);
-        }
-        .player-loading .glass-specular {
-            z-index: 3;
-            box-shadow: inset 1px 1px 1px var(--highlight);
-        }
-        .player-loading .loading-content {
-            position: relative;
-            z-index: 4;
-        }
-        .player-error {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 5;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 1rem 1.5rem;
-            border-radius: 12px;
-            background: var(--bg-color);
-            color: #f44336;
-            font-size: 1rem;
-            font-weight: 500;
-            text-align: center;
-            max-width: 80%;
-            opacity: 0;
-            transition: opacity 0.3s ease, transform 0.3s ease;
-        }
-        .player-error.active {
-            display: flex;
-            opacity: 1;
-            transform: translate(-50%, -50%) scale(1);
-        }
-        .player-error i {
-            font-size: 1.2rem;
-        }
-        .player-error .glass-filter,
-        .player-error .glass-overlay,
-        .player-error .glass-specular {
-            position: absolute;
-            inset: 0;
-            border-radius: inherit;
-        }
-        .player-error .glass-filter {
-            z-index: 1;
-            backdrop-filter: blur(4px);
-            filter: url(#glass-distortion) saturate(120%) brightness(1.15);
-        }
-        .player-error .glass-overlay {
-            z-index: 2;
-            background: var(--bg-color);
-        }
-        .player-error .glass-specular {
-            z-index: 3;
-            box-shadow: inset 1px 1px 1px var(--highlight);
-        }
-        .player-error .error-content {
-            position: relative;
-            z-index: 4;
-        }
         .card {
             position: relative;
             padding: 1.5rem;
@@ -476,18 +363,6 @@
             <div class="glass-overlay"></div>
             <div class="glass-specular"></div>
             <iframe id="player" allow="autoplay; encrypted-media" allowfullscreen loading="lazy" title="Yoshikawa Player"></iframe>
-            <div class="player-loading">
-                <div class="glass-filter"></div>
-                <div class="glass-overlay"></div>
-                <div class="glass-specular"></div>
-                <div class="loading-content">Carregando...</div>
-            </div>
-            <div class="player-error" id="playerError">
-                <div class="glass-filter"></div>
-                <div class="glass-overlay"></div>
-                <div class="glass-specular"></div>
-                <div class="error-content"><i class="fas fa-exclamation-circle"></i> <span id="errorMessage"></span></div>
-            </div>
         </div>
         
         <div class="card">
@@ -548,25 +423,18 @@
 
         document.getElementById('currentYear').textContent = new Date().getFullYear();
 
-        document.getElementById('player').addEventListener('load', () => {
-            document.querySelector('.player-wrapper').classList.remove('loading');
-        });
-
         (async () => {
             const params = new URLSearchParams(window.location.search);
             const imdbId = params.get('imdb_id');
             const tmdbId = params.get('tmdb_id');
             const season = params.get('season');
             const episode = params.get('episode');
-            const playerError = document.getElementById('playerError');
-            const playerWrapper = document.querySelector('.player-wrapper');
             const tmdbApiKey = '66223dd3ad2885cf1129b181c7826287';
-            const defaultBackdrop = 'https://yoshikawa-bot.github.io/cache/images/6747105c.jpg';
+            const defaultBackdrop = 'https://yoshikawa-bot.github.io/cache/images/9e8ac284.jpg';
 
             try {
                 let playerUrl;
                 let backdropUrl = defaultBackdrop;
-                playerWrapper.classList.add('loading');
 
                 function updateBackground(imageUrl) {
                     document.body.style.backgroundImage = `url('${imageUrl}'), linear-gradient(to bottom, #1a1a1a, #000)`;
@@ -597,14 +465,9 @@
                 document.getElementById('player').src = playerUrl;
 
             } catch (error) {
-                playerWrapper.classList.remove('loading');
-                if (playerError) {
-                    document.getElementById('errorMessage').textContent = `Erro: ${error.message}`;
-                    playerError.classList.add('active');
-                }
                 console.error(error);
             }
         })();
     </script>
 </body>
-        </html>
+</html>
