@@ -169,8 +169,7 @@
         }
         .player-wrapper {
             position: relative;
-            /* AUMENTO DA ALTURA/LARGURA: 56.25% (16:9) -> 65% (Aprox. 1.54:1) */
-            padding-bottom: 65%;
+            padding-bottom: 56.25%;
             height: 0;
             overflow: hidden;
             border-radius: 12px;
@@ -433,9 +432,8 @@
             
             // Player Base URL and Customization
             const STREAM_BASE_URL = 'https://superflixapi.blog'; 
-            // Personalizações baseadas na documentação da SuperFlixAPI para um player mais limpo
-            const PLAYER_CUSTOM_SERIE = '#noEpList#noLink'; 
-            const PLAYER_CUSTOM_FILME = '#noLink';          
+            const PLAYER_CUSTOM_SERIE = '#noEpList#noLink'; // Remove lista de episódios e botão de link
+            const PLAYER_CUSTOM_FILME = '#noLink';          // Remove botão de link
 
             try {
                 let playerUrl;
@@ -447,6 +445,7 @@
 
                 if (imdbId) {
                     // Filmes: player/filme/ttID_DO_FILME + personalização
+                    // imdbId já vem como 'tt...' do bot
                     playerUrl = `${STREAM_BASE_URL}/filme/${imdbId}${PLAYER_CUSTOM_FILME}`;
                     
                     const findUrl = `https://api.themoviedb.org/3/find/${imdbId}?api_key=${tmdbApiKey}&external_source=imdb_id&language=pt-BR`;
@@ -475,6 +474,8 @@
 
             } catch (error) {
                 console.error(error);
+                // Opcional: Mostrar uma mensagem de erro na tela para o usuário
+                // document.getElementById('player').src = 'URL_DO_PLAYER_DE_ERRO_OU_MSG_DE_FALHA';
             }
         })();
     </script>
