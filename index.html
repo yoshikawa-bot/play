@@ -362,7 +362,7 @@
             <div class="glass-filter"></div>
             <div class="glass-overlay"></div>
             <div class="glass-specular"></div>
-            <iframe id="player" allow="autoplay; encrypted-media" allowfullscreen loading="lazy" title="Yoshikawa Player"></iframe>
+            <iframe id="player" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen loading="lazy" title="Yoshikawa Player"></iframe>
         </div>
         
         <div class="card">
@@ -429,6 +429,11 @@
             const episode = params.get('episode');
             const tmdbApiKey = '66223dd3ad2885cf1129b181c7826287';
             const defaultBackdrop = 'https://yoshikawa-bot.github.io/cache/images/9e8ac284.jpg';
+            
+            // Player Base URL and Customization
+            const STREAM_BASE_URL = 'https://superflixapi.blog'; 
+            const PLAYER_CUSTOM_SERIE = '#noEpList#noLink'; // Remove lista de episódios e botão de link
+            const PLAYER_CUSTOM_FILME = '#noLink';          // Remove botão de link
 
             try {
                 let playerUrl;
@@ -439,7 +444,10 @@
                 }
 
                 if (imdbId) {
-                    playerUrl = `https://playerflixapi.com/filme/${imdbId}`;
+                    // Filmes: player/filme/ttID_DO_FILME + personalização
+                    // imdbId já vem como 'tt...' do bot
+                    playerUrl = `${STREAM_BASE_URL}/filme/${imdbId}${PLAYER_CUSTOM_FILME}`;
+                    
                     const findUrl = `https://api.themoviedb.org/3/find/${imdbId}?api_key=${tmdbApiKey}&external_source=imdb_id&language=pt-BR`;
                     const findData = await (await fetch(findUrl)).json();
                     if (findData.movie_results?.length) {
@@ -449,7 +457,9 @@
                         }
                     }
                 } else if (tmdbId && season && episode) {
-                    playerUrl = `https://playerflixapi.com/serie/${tmdbId}/${season}/${episode}`;
+                    // Séries: player/serie/ID_DA_SERIE/NUMERO_DA_TEMPORADA/NUMERO_DO_EPISODIO + personalização
+                    playerUrl = `${STREAM_BASE_URL}/serie/${tmdbId}/${season}/${episode}${PLAYER_CUSTOM_SERIE}`;
+                    
                     const seriesUrl = `https://api.themoviedb.org/3/tv/${tmdbId}?api_key=${tmdbApiKey}&language=pt-BR`;
                     const seriesData = await (await fetch(seriesUrl)).json();
                     if (seriesData.backdrop_path) {
@@ -464,6 +474,8 @@
 
             } catch (error) {
                 console.error(error);
+                // Opcional: Mostrar uma mensagem de erro na tela para o usuário
+                document.getElementById('player').src = 'URL_DO_PLAYER_DE_ERRO_OU_MSG_DE_FALHA';
             }
         })();
     </script>
