@@ -1,16 +1,15 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Yoshikawa Streaming - Assista a filmes e séries">
     <title>Yoshikawa Player</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary: #3b82f6;
-            --primary-dark: #2563eb;
+            --primary: #dc2626;
+            --primary-dark: #b91c1c;
             --secondary: #94a3b8;
             --dark: #f1f5f9;
             --light: #0f172a;
@@ -24,6 +23,7 @@
             --header-text: #f0f6fc;
             --success: #10b981;
             --error: #ef4444;
+            --overlay-bg: rgba(15, 23, 42, 0.95);
         }
         
         * {
@@ -148,6 +148,165 @@
             color: var(--primary);
         }
 
+        /* Auto-complete Popup */
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--overlay-bg);
+            border: 1px solid var(--border);
+            border-radius: 0 0 8px 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            backdrop-filter: blur(10px);
+        }
+
+        .search-result-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border);
+            transition: background-color 0.2s;
+        }
+
+        .search-result-item:hover {
+            background-color: var(--card-bg);
+        }
+
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-result-poster {
+            width: 40px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+
+        .search-result-info {
+            flex: 1;
+        }
+
+        .search-result-title {
+            font-weight: 500;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .search-result-meta {
+            font-size: 0.8rem;
+            color: var(--secondary);
+        }
+
+        .search-result-type {
+            background: var(--primary);
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            margin-left: 0.5rem;
+        }
+
+        /* Favoritos Dropdown */
+        .favorites-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 320px;
+            background: var(--overlay-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            backdrop-filter: blur(10px);
+            margin-top: 0.5rem;
+        }
+
+        .favorites-dropdown.open {
+            display: block;
+        }
+
+        .favorites-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .favorites-list {
+            padding: 0.5rem;
+        }
+
+        .favorite-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .favorite-item:hover {
+            background-color: var(--card-bg);
+            border-color: var(--primary);
+        }
+
+        .favorite-poster {
+            width: 45px;
+            height: 65px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+
+        .favorite-info {
+            flex: 1;
+        }
+
+        .favorite-title {
+            font-weight: 500;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .favorite-meta {
+            font-size: 0.8rem;
+            color: var(--secondary);
+        }
+
+        .remove-favorite {
+            background: none;
+            border: none;
+            color: var(--error);
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .remove-favorite:hover {
+            background-color: rgba(239, 68, 68, 0.1);
+        }
+
+        .no-favorites {
+            padding: 2rem 1rem;
+            text-align: center;
+            color: var(--secondary);
+        }
+
         /* Container Principal */
         .container {
             max-width: 1280px;
@@ -246,15 +405,63 @@
             line-height: 1.6;
         }
 
-        /* Recomendações */
-        .recommendations-section {
+        /* Seletor de Episódios */
+        .episode-selector {
+            display: none;
+            gap: 1rem;
+            margin: 1rem 0;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .episode-selector.active {
+            display: flex;
+        }
+
+        .selector-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .selector-label {
+            color: var(--secondary);
+            font-size: 0.9rem;
+        }
+
+        .selector-select {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.5rem;
+            color: var(--text);
+            min-width: 120px;
+        }
+
+        /* Seções da Home */
+        .home-sections {
+            display: block;
+        }
+
+        .home-sections.hidden {
+            display: none;
+        }
+
+        .section {
             margin-bottom: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
         }
 
         .section-title {
             font-size: 1.4rem;
             color: var(--text);
-            margin-bottom: 1rem;
             display: flex;
             align-items: center;
         }
@@ -269,63 +476,221 @@
             margin-right: 10px;
         }
 
-        .recommendations-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 1.5rem;
+        /* Grid de Conteúdo Horizontal */
+        .content-grid {
+            display: flex;
+            overflow-x: auto;
+            gap: 1rem;
+            padding: 0.5rem 0;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) var(--border);
         }
 
-        .recommendation-card {
+        .content-grid::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .content-grid::-webkit-scrollbar-track {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        .content-grid::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        .content-card {
             background-color: var(--card-bg);
-            border-radius: 10px;
+            border-radius: 8px;
             overflow: hidden;
             transition: all 0.3s;
             cursor: pointer;
             border: 1px solid var(--border);
+            flex: 0 0 160px;
+            position: relative;
         }
 
-        .recommendation-card:hover {
+        .content-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
             border-color: var(--primary);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
         }
 
-        .recommendation-poster {
+        .content-poster {
             width: 100%;
-            height: 300px;
+            height: 240px;
             object-fit: cover;
         }
 
-        .recommendation-info {
-            padding: 1rem;
+        .content-info-card {
+            padding: 0.75rem;
         }
 
-        .recommendation-title {
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            color: var(--text);
-            font-size: 0.95rem;
+        .content-title-card {
+            font-weight: 500;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
 
-        .recommendation-year {
+        .content-year {
+            font-size: 0.8rem;
             color: var(--secondary);
+        }
+
+        .favorite-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.7);
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s;
+            z-index: 10;
+        }
+
+        .favorite-btn:hover {
+            background: rgba(220, 38, 38, 0.9);
+        }
+
+        .favorite-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Resultados da Busca */
+        .search-results-section {
+            display: none;
+        }
+
+        .search-results-section.active {
+            display: block;
+        }
+
+        .search-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .search-list-item {
+            display: flex;
+            align-items: center;
+            background-color: var(--card-bg);
+            padding: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .search-list-item:hover {
+            border-color: var(--primary);
+            transform: translateX(5px);
+        }
+
+        .search-list-poster {
+            width: 60px;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+
+        .search-list-info {
+            flex: 1;
+        }
+
+        .search-list-title {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .search-list-meta {
             font-size: 0.85rem;
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .search-list-overview {
+            font-size: 0.8rem;
+            color: var(--text);
+            opacity: 0.8;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Botão Voltar para Home */
+        .back-to-home {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s;
+            z-index: 90;
+        }
+
+        .back-to-home:hover {
+            background-color: var(--primary-dark);
+            transform: scale(1.1);
         }
 
         /* Estados de Carregamento e Erro */
         .loading {
-            display: flex;
+            display: none;
             justify-content: center;
             align-items: center;
             padding: 3rem;
             color: var(--secondary);
+            flex-direction: column;
+        }
+
+        .loading.active {
+            display: flex;
+        }
+
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         .error-message {
+            display: none;
             background-color: var(--card-bg);
             padding: 1.5rem;
             border-radius: 12px;
@@ -334,9 +699,17 @@
             text-align: center;
         }
 
+        .error-message.active {
+            display: block;
+        }
+
         .error-message h3 {
             color: var(--error);
             margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
 
         /* Footer */
@@ -399,13 +772,22 @@
                 min-width: auto;
             }
 
-            .recommendations-grid {
-                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-                gap: 1rem;
+            .content-card {
+                flex: 0 0 140px;
             }
 
-            .recommendation-poster {
-                height: 220px;
+            .content-poster {
+                height: 210px;
+            }
+
+            .favorites-dropdown {
+                width: 280px;
+                right: -1rem;
+            }
+
+            .back-to-home {
+                bottom: 1rem;
+                right: 1rem;
             }
         }
 
@@ -418,12 +800,22 @@
                 font-size: 1.4rem;
             }
             
-            .recommendations-grid {
-                grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            .content-card {
+                flex: 0 0 120px;
             }
             
-            .recommendation-poster {
-                height: 190px;
+            .content-poster {
+                height: 180px;
+            }
+
+            .search-list-item {
+                padding: 0.75rem;
+            }
+
+            .search-list-poster {
+                width: 50px;
+                height: 75px;
+                margin-right: 0.75rem;
             }
         }
     </style>
@@ -441,61 +833,110 @@
                 </div>
             </div>
             
-            <div class="search-container">
-                <input type="text" class="search-input" id="searchInput" placeholder="Buscar filmes e séries...">
-                <button class="search-button" id="searchButton">
-                    <i class="fas fa-search"></i>
+            <div class="header-right">
+                <div class="search-container">
+                    <input type="text" class="search-input" id="searchInput" placeholder="Buscar filmes e séries...">
+                    <button class="search-button" id="searchButton">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    <div class="search-results" id="searchResults"></div>
+                </div>
+                
+                <button class="favorite-btn" id="headerFavoriteBtn" title="Meus Favoritos">
+                    <i class="fas fa-heart"></i>
                 </button>
+                
+                <div class="favorites-dropdown" id="favoritesDropdown">
+                    <div class="favorites-header">
+                        <h3>Meus Favoritos</h3>
+                    </div>
+                    <div class="favorites-list" id="favoritesList">
+                        <div class="no-favorites" id="noFavoritesMsg">
+                            <i class="fas fa-heart-broken" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+                            <p>Nenhum favorito adicionado</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </header>
 
     <main class="container">
-        <!-- Player -->
-        <div class="player-wrapper">
-            <iframe id="player" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen loading="lazy" title="Yoshikawa Player"></iframe>
-        </div>
+        <!-- Player View -->
+        <div id="playerWrapper" style="display: none;">
+            <div class="player-wrapper">
+                <iframe id="player" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen loading="lazy" title="Yoshikawa Player"></iframe>
+            </div>
 
-        <!-- Controles de Navegação -->
-        <div class="navigation-controls" id="navigationControls" style="display: none;">
-            <button class="nav-button secondary" id="prevButton">
-                <i class="fas fa-arrow-left"></i>
-                Episódio Anterior
-            </button>
-            <button class="nav-button" id="nextButton">
-                Próximo Episódio
-                <i class="fas fa-arrow-right"></i>
-            </button>
-            <button class="nav-button secondary" id="changeSeasonButton">
-                <i class="fas fa-exchange-alt"></i>
-                Mudar Temporada
-            </button>
-        </div>
+            <div class="content-info" id="contentInfo">
+                <h1 class="content-title" id="contentTitle"></h1>
+                <div class="content-meta" id="contentMeta"></div>
+                
+                <div class="episode-selector" id="episodeSelector">
+                    <div class="selector-group">
+                        <span class="selector-label">Temporada:</span>
+                        <select class="selector-select" id="seasonSelect"></select>
+                    </div>
+                    <div class="selector-group">
+                        <span class="selector-label">Episódio:</span>
+                        <select class="selector-select" id="episodeSelect"></select>
+                    </div>
+                </div>
+                
+                <div class="navigation-controls" id="navigationControls">
+                    <button class="nav-button secondary" id="prevButton">
+                        <i class="fas fa-arrow-left"></i>
+                        Episódio Anterior
+                    </button>
+                    <button class="nav-button" id="nextButton">
+                        Próximo Episódio
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
 
-        <!-- Informações do Conteúdo -->
-        <div class="content-info" id="contentInfo" style="display: none;">
-            <h1 class="content-title" id="contentTitle"></h1>
-            <div class="content-meta" id="contentMeta"></div>
-            <p class="content-description" id="contentDescription"></p>
-        </div>
-
-        <!-- Recomendações -->
-        <div class="recommendations-section">
-            <h2 class="section-title">Recomendações</h2>
-            <div class="recommendations-grid" id="recommendationsGrid">
-                <!-- As recomendações serão carregadas aqui -->
+                <h3 style="margin-top: 1rem; margin-bottom: 0.5rem;">Sinopse</h3>
+                <p class="content-description" id="contentDescription"></p>
             </div>
         </div>
 
-        <!-- Estado de Carregamento -->
-        <div class="loading" id="loadingState">
-            <i class="fas fa-spinner fa-spin"></i>
-            <span style="margin-left: 10px;">Carregando conteúdo...</span>
+        <!-- Home View -->
+        <div class="home-sections" id="homeSections">
+            <section class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Últimos Lançamentos</h2>
+                </div>
+                <div id="releasesGrid" class="content-grid"></div>
+            </section>
+
+            <section class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Populares e Recomendações</h2>
+                </div>
+                <div id="recommendationsGrid" class="content-grid"></div>
+            </section>
         </div>
 
-        <!-- Mensagem de Erro -->
-        <div class="error-message" id="errorState" style="display: none;">
-            <h3><i class="fas fa-exclamation-triangle"></i> Ocorreu um erro</h3>
+        <!-- Search Results View -->
+        <div class="search-results-section" id="searchResultsSection">
+            <div class="section-header">
+                <h2 class="section-title">Resultados da Busca</h2>
+                <span style="color: var(--secondary); margin-left: auto;" id="searchQueryDisplay"></span>
+            </div>
+            <div id="searchResultsGrid" class="search-list"></div>
+        </div>
+
+        <!-- Loading State -->
+        <div class="loading" id="loadingState">
+            <div class="spinner"></div>
+            <p>Carregando conteúdo...</p>
+        </div>
+
+        <!-- Error State -->
+        <div class="error-message" id="errorState">
+            <h3>
+                <i class="fas fa-exclamation-triangle"></i>
+                Ocorreu um erro
+            </h3>
             <p id="errorMessage"></p>
             <button class="nav-button" style="margin-top: 1rem;" onclick="location.reload()">
                 <i class="fas fa-redo"></i>
@@ -503,6 +944,10 @@
             </button>
         </div>
     </main>
+
+    <button class="back-to-home" id="backToHomeButton" title="Voltar para Home">
+        <i class="fas fa-home"></i>
+    </button>
 
     <footer>
         <div class="footer-content">
@@ -521,246 +966,477 @@
         const DEFAULT_POSTER = 'https://yoshikawa-bot.github.io/cache/images/6e595b38.jpg';
 
         // Elementos DOM
+        const playerWrapper = document.getElementById('playerWrapper');
         const player = document.getElementById('player');
         const navigationControls = document.getElementById('navigationControls');
         const contentInfo = document.getElementById('contentInfo');
         const contentTitle = document.getElementById('contentTitle');
         const contentMeta = document.getElementById('contentMeta');
         const contentDescription = document.getElementById('contentDescription');
+        const homeSections = document.getElementById('homeSections');
+        const searchResultsSection = document.getElementById('searchResultsSection');
+        const searchResultsGrid = document.getElementById('searchResultsGrid');
+        const releasesGrid = document.getElementById('releasesGrid');
         const recommendationsGrid = document.getElementById('recommendationsGrid');
         const loadingState = document.getElementById('loadingState');
         const errorState = document.getElementById('errorState');
         const errorMessage = document.getElementById('errorMessage');
         const searchInput = document.getElementById('searchInput');
         const searchButton = document.getElementById('searchButton');
+        const searchResults = document.getElementById('searchResults');
         const prevButton = document.getElementById('prevButton');
         const nextButton = document.getElementById('nextButton');
-        const changeSeasonButton = document.getElementById('changeSeasonButton');
+        const backToHomeButton = document.getElementById('backToHomeButton');
+        const searchQueryDisplay = document.getElementById('searchQueryDisplay');
+        const episodeSelector = document.getElementById('episodeSelector');
+        const seasonSelect = document.getElementById('seasonSelect');
+        const episodeSelect = document.getElementById('episodeSelect');
+        const headerFavoriteBtn = document.getElementById('headerFavoriteBtn');
+        const favoritesDropdown = document.getElementById('favoritesDropdown');
+        const favoritesList = document.getElementById('favoritesList');
+        const noFavoritesMsg = document.getElementById('noFavoritesMsg');
 
         // Estado atual
         let currentContent = {
-            type: null, // 'movie' ou 'tv'
+            type: null,
             id: null,
+            tmdbId: null,
             season: null,
             episode: null,
-            title: null
+            title: null,
+            totalSeasons: 0,
+            seasonDetails: []
         };
+        
+        let searchTimeout;
 
         // Inicialização
         document.addEventListener('DOMContentLoaded', async () => {
             const params = new URLSearchParams(window.location.search);
-            const imdbId = params.get('imdb_id');
             const tmdbId = params.get('tmdb_id');
+            const type = params.get('type');
             const season = params.get('season');
             const episode = params.get('episode');
 
             try {
-                if (imdbId) {
-                    await loadMovieByImdbId(imdbId);
-                } else if (tmdbId && season && episode) {
-                    await loadTvShow(tmdbId, parseInt(season), parseInt(episode));
+                await loadFavoritesDropdown();
+
+                if (tmdbId && type) {
+                    if (type === 'movie') {
+                        await loadMovie(tmdbId);
+                    } else if (type === 'tv' && season && episode) {
+                        await loadTvShow(tmdbId, parseInt(season), parseInt(episode));
+                    }
                 } else {
-                    // Carregar recomendações populares se não há conteúdo específico
-                    await loadPopularContent();
-                    loadingState.style.display = 'none';
+                    showHome();
                 }
             } catch (error) {
                 showError('Erro ao carregar o conteúdo: ' + error.message);
             }
+
+            setupEventListeners();
         });
 
-        // Funções principais
-        async function loadMovieByImdbId(imdbId) {
-            try {
-                loadingState.style.display = 'flex';
-                
-                // Buscar filme pelo IMDb ID
-                const findUrl = `https://api.themoviedb.org/3/find/${imdbId}?api_key=${TMDB_API_KEY}&external_source=imdb_id&language=pt-BR`;
-                const findResponse = await fetch(findUrl);
-                if (!findResponse.ok) throw new Error('Filme não encontrado');
-                
-                const findData = await findResponse.json();
-                if (!findData.movie_results || findData.movie_results.length === 0) {
-                    throw new Error('Filme não encontrado na base de dados');
+        function setupEventListeners() {
+            // Busca
+            searchInput.addEventListener('input', handleSearchInput);
+            searchButton.onclick = performSearch;
+            
+            document.addEventListener('click', (e) => {
+                if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                    searchResults.style.display = 'none';
                 }
-                
-                const movie = findData.movie_results[0];
-                await loadMovie(movie.id);
+                if (!headerFavoriteBtn.contains(e.target) && !favoritesDropdown.contains(e.target)) {
+                    favoritesDropdown.classList.remove('open');
+                }
+            });
+
+            // Favoritos
+            headerFavoriteBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                favoritesDropdown.classList.toggle('open');
+            });
+
+            // Navegação
+            prevButton.onclick = () => changeEpisode(-1);
+            nextButton.onclick = () => changeEpisode(1);
+            backToHomeButton.onclick = showHome;
+            
+            seasonSelect.addEventListener('change', () => loadEpisodesForSeason(parseInt(seasonSelect.value)));
+            episodeSelect.addEventListener('change', () => {
+                const newEpisode = parseInt(episodeSelect.value);
+                const newSeason = parseInt(seasonSelect.value);
+                if (currentContent.tmdbId && newSeason && newEpisode) {
+                    loadTvShow(currentContent.tmdbId, newSeason, newEpisode);
+                }
+            });
+        }
+
+        // Funções de UI
+        function showLoading() {
+            hideAll();
+            loadingState.classList.add('active');
+        }
+        
+        function hideLoading() {
+            loadingState.classList.remove('active');
+        }
+
+        function showError(message) {
+            hideAll();
+            errorMessage.textContent = message;
+            errorState.classList.add('active');
+        }
+
+        function showHome() {
+            hideAll();
+            homeSections.classList.remove('hidden');
+            document.title = 'Yoshikawa Player';
+            player.src = '';
+            favoritesDropdown.classList.remove('open');
+            loadLatestReleases();
+            loadPopularContent();
+        }
+
+        function showPlayerView() {
+            hideAll();
+            playerWrapper.style.display = 'block';
+            contentInfo.style.display = 'block';
+            backToHomeButton.style.display = 'flex';
+        }
+
+        function showSearchResults() {
+            hideAll();
+            searchResultsSection.classList.add('active');
+            backToHomeButton.style.display = 'flex';
+        }
+
+        function hideAll() {
+            loadingState.classList.remove('active');
+            errorState.classList.remove('active');
+            playerWrapper.style.display = 'none';
+            contentInfo.style.display = 'none';
+            navigationControls.style.display = 'none';
+            episodeSelector.classList.remove('active');
+            homeSections.classList.add('hidden');
+            searchResultsSection.classList.remove('active');
+            backToHomeButton.style.display = 'none';
+            searchResults.style.display = 'none';
+        }
+
+        // Busca em tempo real
+        function handleSearchInput() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                const query = searchInput.value.trim();
+                if (query.length > 2) {
+                    performAutoComplete(query);
+                } else {
+                    searchResults.style.display = 'none';
+                }
+            }, 300);
+        }
+
+        async function performAutoComplete(query) {
+            try {
+                const [moviesResponse, tvResponse] = await Promise.all([
+                    fetch(`https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&language=pt-BR&page=1`),
+                    fetch(`https://api.themoviedb.org/3/search/tv?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&language=pt-BR&page=1`)
+                ]);
+
+                const moviesData = await moviesResponse.json();
+                const tvData = await tvResponse.json();
+
+                const allResults = [
+                    ...(moviesData.results || []).slice(0, 5).map(item => ({ ...item, media_type: 'movie' })),
+                    ...(tvData.results || []).slice(0, 5).map(item => ({ ...item, media_type: 'tv' }))
+                ].sort((a, b) => b.popularity - a.popularity);
+
+                displayAutoCompleteResults(allResults);
             } catch (error) {
-                throw error;
+                console.error('Erro no auto-complete:', error);
             }
         }
 
-        async function loadMovie(movieId) {
+        function displayAutoCompleteResults(results) {
+            if (results.length === 0) {
+                searchResults.innerHTML = '<div class="search-result-item">Nenhum resultado encontrado</div>';
+            } else {
+                searchResults.innerHTML = results.map(item => {
+                    const posterPath = item.poster_path 
+                        ? `https://image.tmdb.org/t/p/w92${item.poster_path}`
+                        : DEFAULT_POSTER;
+                    
+                    const title = item.title || item.name;
+                    const year = item.release_date 
+                        ? new Date(item.release_date).getFullYear()
+                        : (item.first_air_date ? new Date(item.first_air_date).getFullYear() : '');
+                    
+                    const type = item.media_type === 'movie' ? 'Filme' : 'Série';
+                    
+                    return `
+                        <div class="search-result-item" data-type="${item.media_type}" data-id="${item.id}">
+                            <img src="${posterPath}" alt="${title}" class="search-result-poster" onerror="this.src='${DEFAULT_POSTER}'">
+                            <div class="search-result-info">
+                                <div class="search-result-title">${title}</div>
+                                <div class="search-result-meta">
+                                    ${year}
+                                    <span class="search-result-type">${type}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                searchResults.querySelectorAll('.search-result-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        const type = item.dataset.type;
+                        const id = item.dataset.id;
+                        
+                        if (type === 'movie') {
+                            loadMovie(id);
+                        } else {
+                            loadTvShow(id, 1, 1);
+                        }
+                        
+                        searchResults.style.display = 'none';
+                        searchInput.value = '';
+                    });
+                });
+            }
+            
+            searchResults.style.display = 'block';
+        }
+
+        // Funções de conteúdo
+        async function loadMovie(tmdbId) {
+            showLoading();
             try {
-                // Detalhes do filme
-                const movieUrl = `https://api.themoviedb.org/3/movie/${movieId}?api_key=${TMDB_API_KEY}&language=pt-BR`;
+                const movieUrl = `https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${TMDB_API_KEY}&language=pt-BR&append_to_response=external_ids`;
                 const movieResponse = await fetch(movieUrl);
                 const movieData = await movieResponse.json();
 
-                // Configurar player
-                const playerUrl = `${STREAM_BASE_URL}/filme/${movieData.imdb_id || movieId}#noLink`;
+                if (movieResponse.status === 404) throw new Error('Filme não encontrado');
+
+                const identifier = movieData.external_ids?.imdb_id || tmdbId;
+                const playerUrl = `${STREAM_BASE_URL}/filme/${identifier}#noLink`;
                 player.src = playerUrl;
 
-                // Atualizar informações
                 contentTitle.textContent = movieData.title;
                 contentMeta.innerHTML = `
-                    <span>${movieData.release_date ? new Date(movieData.release_date).getFullYear() : 'N/A'}</span>
-                    <span>${movieData.runtime ? `${movieData.runtime} min` : ''}</span>
-                    <span>${movieData.genres ? movieData.genres.map(g => g.name).join(', ') : ''}</span>
+                    <span><i class="fas fa-calendar"></i> ${movieData.release_date ? new Date(movieData.release_date).getFullYear() : 'N/A'}</span>
+                    <span><i class="fas fa-clock"></i> ${movieData.runtime ? `${movieData.runtime} min` : ''}</span>
+                    <span><i class="fas fa-tags"></i> ${movieData.genres ? movieData.genres.map(g => g.name).join(', ') : ''}</span>
                 `;
                 contentDescription.textContent = movieData.overview || 'Descrição não disponível.';
+                document.title = movieData.title;
 
-                // Atualizar estado
                 currentContent = {
                     type: 'movie',
-                    id: movieId,
+                    id: movieData.id,
+                    tmdbId: movieData.id,
                     title: movieData.title
                 };
 
-                // Esconder controles de episódios para filmes
+                showPlayerView();
                 navigationControls.style.display = 'none';
-                contentInfo.style.display = 'block';
-                loadingState.style.display = 'none';
+                episodeSelector.classList.remove('active');
 
-                // Carregar recomendações
-                await loadMovieRecommendations(movieId);
+                await loadMovieRecommendations(movieData.id);
+                hideLoading();
+
+                history.pushState(currentContent, movieData.title, `?tmdb_id=${tmdbId}&type=movie`);
+                
             } catch (error) {
-                throw error;
+                showError('Erro ao carregar o filme: ' + error.message);
             }
         }
 
-        async function loadTvShow(tvId, seasonNumber, episodeNumber) {
+        async function loadTvShow(tmdbId, seasonNumber, episodeNumber) {
+            showLoading();
             try {
-                loadingState.style.display = 'flex';
-                
-                // Detalhes da série
-                const tvUrl = `https://api.themoviedb.org/3/tv/${tvId}?api_key=${TMDB_API_KEY}&language=pt-BR`;
+                const tvUrl = `https://api.themoviedb.org/3/tv/${tmdbId}?api_key=${TMDB_API_KEY}&language=pt-BR`;
                 const tvResponse = await fetch(tvUrl);
                 const tvData = await tvResponse.json();
 
-                // Detalhes da temporada
-                const seasonUrl = `https://api.themoviedb.org/3/tv/${tvId}/season/${seasonNumber}?api_key=${TMDB_API_KEY}&language=pt-BR`;
+                if (tvResponse.status === 404) throw new Error('Série não encontrada');
+
+                currentContent.tmdbId = tmdbId;
+                currentContent.id = tmdbId;
+                currentContent.type = 'tv';
+                currentContent.totalSeasons = tvData.number_of_seasons;
+                currentContent.title = tvData.name;
+                currentContent.seasonDetails = tvData.seasons.filter(s => s.season_number > 0);
+                currentContent.season = seasonNumber;
+                currentContent.episode = episodeNumber;
+
+                const seasonUrl = `https://api.themoviedb.org/3/tv/${tmdbId}/season/${seasonNumber}?api_key=${TMDB_API_KEY}&language=pt-BR`;
                 const seasonResponse = await fetch(seasonUrl);
                 const seasonData = await seasonResponse.json();
-
-                // Encontrar episódio
+                
                 const episodeData = seasonData.episodes.find(ep => ep.episode_number === episodeNumber);
                 if (!episodeData) {
-                    throw new Error('Episódio não encontrado');
+                    throw new Error(`Episódio S${seasonNumber} E${episodeNumber} não encontrado`);
                 }
 
-                // Configurar player
-                const playerUrl = `${STREAM_BASE_URL}/serie/${tvId}/${seasonNumber}/${episodeNumber}#noEpList#noLink`;
+                const playerUrl = `${STREAM_BASE_URL}/serie/${tmdbId}/${seasonNumber}/${episodeNumber}#noEpList#noLink`;
                 player.src = playerUrl;
-
-                // Atualizar informações
-                contentTitle.textContent = `${tvData.name} - T${seasonNumber} E${episodeNumber}`;
+                
+                const episodeTitle = episodeData.name || `Episódio ${episodeNumber}`;
+                contentTitle.textContent = `${tvData.name} - ${episodeTitle}`;
                 contentMeta.innerHTML = `
-                    <span>Temporada ${seasonNumber}</span>
-                    <span>Episódio ${episodeNumber}</span>
-                    <span>${episodeData.runtime ? `${episodeData.runtime} min` : ''}</span>
+                    <span><i class="fas fa-layer-group"></i> Temporada ${seasonNumber}</span>
+                    <span><i class="fas fa-tv"></i> Episódio ${episodeNumber}</span>
+                    <span><i class="fas fa-clock"></i> ${episodeData.runtime ? `${episodeData.runtime} min` : ''}</span>
                 `;
-                contentDescription.textContent = episodeData.overview || tvData.overview || 'Descrição não disponível.';
+                contentDescription.textContent = episodeData.overview || tvData.overview || 'Descrição não disponível';
+                document.title = `${tvData.name} S${seasonNumber} E${episodeNumber}`;
 
-                // Configurar controles de navegação
-                prevButton.onclick = () => changeEpisode(-1);
-                nextButton.onclick = () => changeEpisode(1);
-                changeSeasonButton.onclick = () => changeSeason();
+                await setupEpisodeSelector(seasonNumber, episodeNumber, seasonData);
+                prevButton.disabled = (seasonNumber === 1 && episodeNumber === 1);
+                nextButton.disabled = false;
 
-                // Atualizar estado
-                currentContent = {
-                    type: 'tv',
-                    id: tvId,
-                    season: seasonNumber,
-                    episode: episodeNumber,
-                    title: tvData.name
-                };
-
-                // Mostrar controles
+                showPlayerView();
                 navigationControls.style.display = 'flex';
-                contentInfo.style.display = 'block';
-                loadingState.style.display = 'none';
+                episodeSelector.classList.add('active');
+                
+                await loadTvRecommendations(tmdbId);
+                hideLoading();
+                
+                history.pushState(currentContent, document.title, `?tmdb_id=${tmdbId}&type=tv&season=${seasonNumber}&episode=${episodeNumber}`);
 
-                // Carregar recomendações
-                await loadTvRecommendations(tvId);
             } catch (error) {
-                throw error;
+                showError('Erro ao carregar a série: ' + error.message);
+            }
+        }
+
+        async function setupEpisodeSelector(currentSeason, currentEpisode, currentSeasonDetails) {
+            seasonSelect.innerHTML = '';
+            currentContent.seasonDetails.forEach(season => {
+                if (season.episode_count > 0) {
+                    const option = document.createElement('option');
+                    option.value = season.season_number;
+                    option.textContent = `T${season.season_number}`;
+                    if (season.season_number === currentSeason) {
+                        option.selected = true;
+                    }
+                    seasonSelect.appendChild(option);
+                }
+            });
+            
+            await loadEpisodesForSeason(currentSeason, currentEpisode, currentSeasonDetails);
+        }
+        
+        async function loadEpisodesForSeason(seasonNumber, episodeToSelect = 1, seasonData = null) {
+            episodeSelect.innerHTML = '';
+            episodeSelect.disabled = true;
+
+            try {
+                let details = seasonData;
+                if (!details || details.season_number !== seasonNumber) {
+                    const seasonUrl = `https://api.themoviedb.org/3/tv/${currentContent.tmdbId}/season/${seasonNumber}?api_key=${TMDB_API_KEY}&language=pt-BR`;
+                    const response = await fetch(seasonUrl);
+                    details = await response.json();
+                }
+
+                if (!details.episodes || details.episodes.length === 0) {
+                    const option = document.createElement('option');
+                    option.textContent = 'Nenhum episódio';
+                    episodeSelect.appendChild(option);
+                    return;
+                }
+
+                details.episodes.forEach(episode => {
+                    const option = document.createElement('option');
+                    option.value = episode.episode_number;
+                    option.textContent = `E${episode.episode_number}: ${episode.name || 'Sem título'}`;
+                    if (episode.episode_number === episodeToSelect) {
+                        option.selected = true;
+                    }
+                    episodeSelect.appendChild(option);
+                });
+                
+                episodeSelect.disabled = false;
+                
+            } catch (error) {
+                console.error("Erro ao carregar episódios:", error);
             }
         }
 
         async function changeEpisode(direction) {
             if (currentContent.type !== 'tv') return;
 
-            const newEpisode = currentContent.episode + direction;
+            let newEpisode = currentContent.episode + direction;
             let newSeason = currentContent.season;
 
             try {
-                // Verificar se precisa mudar de temporada
-                const seasonUrl = `https://api.themoviedb.org/3/tv/${currentContent.id}/season/${newSeason}?api_key=${TMDB_API_KEY}&language=pt-BR`;
-                const seasonResponse = await fetch(seasonUrl);
-                const seasonData = await seasonResponse.json();
-
-                if (direction === 1 && newEpisode > seasonData.episodes.length) {
-                    // Próxima temporada
-                    newSeason++;
-                    await loadTvShow(currentContent.id, newSeason, 1);
-                } else if (direction === -1 && newEpisode < 1) {
-                    // Temporada anterior
-                    if (newSeason > 1) {
-                        newSeason--;
-                        const prevSeasonUrl = `https://api.themoviedb.org/3/tv/${currentContent.id}/season/${newSeason}?api_key=${TMDB_API_KEY}&language=pt-BR`;
-                        const prevSeasonResponse = await fetch(prevSeasonUrl);
-                        const prevSeasonData = await prevSeasonResponse.json();
-                        await loadTvShow(currentContent.id, newSeason, prevSeasonData.episodes.length);
+                showLoading();
+                
+                const currentSeasonDetail = currentContent.seasonDetails.find(s => s.season_number === newSeason);
+                if (!currentSeasonDetail) throw new Error('Detalhes da temporada não encontrados');
+                
+                const currentSeasonEpisodeCount = currentSeasonDetail.episode_count;
+                
+                if (direction === 1) {
+                    if (newEpisode > currentSeasonEpisodeCount) {
+                        const nextSeason = currentContent.seasonDetails.find(s => s.season_number === newSeason + 1);
+                        if (nextSeason) {
+                            newSeason++;
+                            newEpisode = 1;
+                        } else {
+                            hideLoading();
+                            alert('Este é o último episódio');
+                            return;
+                        }
                     }
-                } else {
-                    // Mesma temporada
-                    await loadTvShow(currentContent.id, newSeason, newEpisode);
+                } else if (direction === -1) {
+                    if (newEpisode < 1) {
+                        const prevSeason = currentContent.seasonDetails.find(s => s.season_number === newSeason - 1);
+                        if (prevSeason) {
+                            newSeason--;
+                            const prevSeasonUrl = `https://api.themoviedb.org/3/tv/${currentContent.tmdbId}/season/${newSeason}?api_key=${TMDB_API_KEY}&language=pt-BR`;
+                            const prevSeasonResponse = await fetch(prevSeasonUrl);
+                            const prevSeasonData = await prevSeasonResponse.json();
+                            newEpisode = prevSeasonData.episodes.length;
+                        } else {
+                            hideLoading();
+                            alert('Este é o primeiro episódio');
+                            return;
+                        }
+                    }
                 }
+                
+                await loadTvShow(currentContent.tmdbId, newSeason, newEpisode);
+                
             } catch (error) {
                 showError('Erro ao mudar episódio: ' + error.message);
             }
         }
 
-        function changeSeason() {
-            if (currentContent.type !== 'tv') return;
-
-            const seasonNumber = prompt('Digite o número da temporada:');
-            if (seasonNumber && !isNaN(seasonNumber) && parseInt(seasonNumber) > 0) {
-                loadTvShow(currentContent.id, parseInt(seasonNumber), 1);
-            }
-        }
-
-        async function loadMovieRecommendations(movieId) {
+        // Funções da Home
+        async function loadLatestReleases() {
             try {
-                const recommendationsUrl = `https://api.themoviedb.org/3/movie/${movieId}/recommendations?api_key=${TMDB_API_KEY}&language=pt-BR&page=1`;
-                const response = await fetch(recommendationsUrl);
-                const data = await response.json();
-                
-                displayRecommendations(data.results || [], 'movie');
-            } catch (error) {
-                console.error('Erro ao carregar recomendações:', error);
-                await loadPopularContent(); // Fallback para conteúdo popular
-            }
-        }
+                const [moviesResponse, tvResponse] = await Promise.all([
+                    fetch(`https://api.themoviedb.org/3/movie/now_playing?api_key=${TMDB_API_KEY}&language=pt-BR&page=1`),
+                    fetch(`https://api.themoviedb.org/3/tv/on_the_air?api_key=${TMDB_API_KEY}&language=pt-BR&page=1`)
+                ]);
 
-        async function loadTvRecommendations(tvId) {
-            try {
-                const recommendationsUrl = `https://api.themoviedb.org/3/tv/${tvId}/recommendations?api_key=${TMDB_API_KEY}&language=pt-BR&page=1`;
-                const response = await fetch(recommendationsUrl);
-                const data = await response.json();
-                
-                displayRecommendations(data.results || [], 'tv');
+                const moviesData = await moviesResponse.json();
+                const tvData = await tvResponse.json();
+
+                const allContent = [...(moviesData.results || []), ...(tvData.results || [])]
+                    .filter(item => item.poster_path)
+                    .sort((a, b) => new Date(b.release_date || b.first_air_date) - new Date(a.release_date || a.first_air_date))
+                    .slice(0, 15);
+
+                displayContentGrid(allContent, releasesGrid, 'mixed');
             } catch (error) {
-                console.error('Erro ao carregar recomendações:', error);
-                await loadPopularContent(); // Fallback para conteúdo popular
+                console.error('Erro ao carregar lançamentos:', error);
             }
         }
 
         async function loadPopularContent() {
             try {
-                // Carregar filmes e séries populares
                 const [moviesResponse, tvResponse] = await Promise.all([
                     fetch(`https://api.themoviedb.org/3/movie/popular?api_key=${TMDB_API_KEY}&language=pt-BR&page=1`),
                     fetch(`https://api.themoviedb.org/3/tv/popular?api_key=${TMDB_API_KEY}&language=pt-BR&page=1`)
@@ -769,24 +1445,45 @@
                 const moviesData = await moviesResponse.json();
                 const tvData = await tvResponse.json();
 
-                // Combinar e embaralhar resultados
                 const allContent = [...(moviesData.results || []), ...(tvData.results || [])]
+                    .filter(item => item.poster_path)
                     .sort(() => 0.5 - Math.random())
-                    .slice(0, 12);
+                    .slice(0, 15);
 
-                displayRecommendations(allContent, 'mixed');
+                displayContentGrid(allContent, recommendationsGrid, 'mixed');
             } catch (error) {
                 console.error('Erro ao carregar conteúdo popular:', error);
-                showError('Não foi possível carregar as recomendações');
             }
         }
 
-        function displayRecommendations(items, type) {
-            recommendationsGrid.innerHTML = '';
+        async function loadMovieRecommendations(movieId) {
+            await loadRecommendations(`movie/${movieId}/recommendations`, recommendationsGrid, 'movie');
+        }
 
-            items.slice(0, 12).forEach(item => {
+        async function loadTvRecommendations(tvId) {
+            await loadRecommendations(`tv/${tvId}/recommendations`, recommendationsGrid, 'tv');
+        }
+
+        async function loadRecommendations(endpoint, container, type) {
+            try {
+                const recommendationsUrl = `https://api.themoviedb.org/3/${endpoint}?api_key=${TMDB_API_KEY}&language=pt-BR&page=1`;
+                const response = await fetch(recommendationsUrl);
+                const data = await response.json();
+                
+                const content = (data.results || []).filter(item => item.poster_path).slice(0, 15);
+                displayContentGrid(content, container, type);
+            } catch (error) {
+                console.error('Erro ao carregar recomendações:', error);
+            }
+        }
+
+        // Renderização
+        function displayContentGrid(items, container, type) {
+            container.innerHTML = '';
+
+            items.forEach(item => {
                 const card = document.createElement('div');
-                card.className = 'recommendation-card';
+                card.className = 'content-card';
                 
                 const posterPath = item.poster_path 
                     ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
@@ -797,42 +1494,52 @@
                     ? new Date(item.release_date).getFullYear()
                     : (item.first_air_date ? new Date(item.first_air_date).getFullYear() : 'N/A');
                 
-                const mediaType = type === 'mixed' ? (item.title ? 'movie' : 'tv') : type;
+                const mediaType = item.media_type || (type === 'mixed' ? (item.title ? 'movie' : 'tv') : type);
+                const itemId = item.id;
+                
+                const favorites = getFavorites();
+                const isFavorite = favorites.some(fav => fav.id === itemId && fav.type === mediaType);
 
                 card.innerHTML = `
-                    <img src="${posterPath}" alt="${title}" class="recommendation-poster" onerror="this.src='${DEFAULT_POSTER}'">
-                    <div class="recommendation-info">
-                        <div class="recommendation-title">${title}</div>
-                        <div class="recommendation-year">${year}</div>
+                    <img src="${posterPath}" alt="${title}" class="content-poster" onerror="this.src='${DEFAULT_POSTER}'">
+                    <button class="favorite-btn ${isFavorite ? 'active' : ''}" data-id="${itemId}" data-type="${mediaType}" data-title="${title}" data-poster="${posterPath}" data-year="${year}">
+                        <i class="fas fa-heart"></i>
+                    </button>
+                    <div class="content-info-card">
+                        <div class="content-title-card">${title}</div>
+                        <div class="content-year">${year}</div>
                     </div>
                 `;
 
                 card.onclick = () => {
                     if (mediaType === 'movie') {
-                        loadMovie(item.id);
+                        loadMovie(itemId);
                     } else {
-                        loadTvShow(item.id, 1, 1);
+                        loadTvShow(itemId, 1, 1);
                     }
                 };
 
-                recommendationsGrid.appendChild(card);
+                const favoriteBtn = card.querySelector('.favorite-btn');
+                favoriteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleFavorite(itemId, mediaType, title, posterPath, year);
+                    favoriteBtn.classList.toggle('active');
+                    loadFavoritesDropdown();
+                });
+
+                container.appendChild(card);
             });
         }
 
-        // Busca
-        searchButton.onclick = performSearch;
-        searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') performSearch();
-        });
-
+        // Busca principal
         async function performSearch() {
             const query = searchInput.value.trim();
             if (!query) return;
 
+            showLoading();
+            searchQueryDisplay.textContent = query;
+
             try {
-                loadingState.style.display = 'flex';
-                
-                // Buscar filmes e séries
                 const [moviesResponse, tvResponse] = await Promise.all([
                     fetch(`https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&language=pt-BR&page=1`),
                     fetch(`https://api.themoviedb.org/3/search/tv?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&language=pt-BR&page=1`)
@@ -841,41 +1548,148 @@
                 const moviesData = await moviesResponse.json();
                 const tvData = await tvResponse.json();
 
-                // Combinar resultados
                 const allResults = [
                     ...(moviesData.results || []).map(item => ({ ...item, media_type: 'movie' })),
                     ...(tvData.results || []).map(item => ({ ...item, media_type: 'tv' }))
-                ].sort((a, b) => b.popularity - a.popularity);
+                ].filter(item => item.poster_path)
+                 .sort((a, b) => b.popularity - a.popularity)
+                 .slice(0, 30);
 
-                if (allResults.length === 0) {
-                    showError('Nenhum resultado encontrado para: ' + query);
-                    return;
-                }
-
-                // Mostrar resultados
-                displayRecommendations(allResults, 'mixed');
-                loadingState.style.display = 'none';
-
-                // Se houver player ativo, manter as informações
-                if (currentContent.type) {
-                    contentInfo.style.display = 'block';
-                    navigationControls.style.display = currentContent.type === 'tv' ? 'flex' : 'none';
-                }
+                displaySearchResultsList(allResults, searchResultsGrid);
+                showSearchResults();
+                hideLoading();
 
             } catch (error) {
                 showError('Erro na busca: ' + error.message);
             }
         }
 
-        function showError(message) {
-            errorMessage.textContent = message;
-            errorState.style.display = 'block';
-            loadingState.style.display = 'none';
+        function displaySearchResultsList(items, container) {
+            container.innerHTML = '';
+            
+            if (items.length === 0) {
+                container.innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--secondary);">Nenhum resultado encontrado</p>';
+                return;
+            }
+
+            items.forEach(item => {
+                const listItem = document.createElement('div');
+                listItem.className = 'search-list-item';
+                
+                const posterPath = item.poster_path 
+                    ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
+                    : DEFAULT_POSTER;
+                
+                const title = item.title || item.name;
+                const year = item.release_date 
+                    ? new Date(item.release_date).getFullYear()
+                    : (item.first_air_date ? new Date(item.first_air_date).getFullYear() : 'N/A');
+                
+                const mediaType = item.media_type;
+                const typeLabel = mediaType === 'movie' ? 'Filme' : 'Série';
+
+                listItem.innerHTML = `
+                    <img src="${posterPath}" alt="${title}" class="search-list-poster" onerror="this.src='${DEFAULT_POSTER}'">
+                    <div class="search-list-info">
+                        <div class="search-list-title">${title}</div>
+                        <div class="search-list-meta">${typeLabel} | ${year}</div>
+                        <div class="search-list-overview">${item.overview || 'Sinopse não disponível'}</div>
+                    </div>
+                `;
+
+                listItem.onclick = () => {
+                    if (mediaType === 'movie') {
+                        loadMovie(item.id);
+                    } else {
+                        loadTvShow(item.id, 1, 1);
+                    }
+                };
+
+                container.appendChild(listItem);
+            });
         }
 
-        // Esconder erro
-        function hideError() {
-            errorState.style.display = 'none';
+        // Favoritos
+        function getFavorites() {
+            const favorites = localStorage.getItem('yoshikawa_favorites');
+            return favorites ? JSON.parse(favorites) : [];
+        }
+
+        function saveFavorites(favorites) {
+            localStorage.setItem('yoshikawa_favorites', JSON.stringify(favorites));
+        }
+
+        function toggleFavorite(id, type, title, poster, year) {
+            const favorites = getFavorites();
+            const existingIndex = favorites.findIndex(fav => fav.id === id && fav.type === type);
+            
+            if (existingIndex !== -1) {
+                favorites.splice(existingIndex, 1);
+            } else {
+                const fullPoster = poster.startsWith('http') ? poster : `https://image.tmdb.org/t/p/w500${poster}`;
+                favorites.push({ id, type, title, poster: fullPoster, year });
+            }
+            
+            saveFavorites(favorites);
+            loadFavoritesDropdown();
+        }
+
+        function removeFavorite(id, type) {
+            let favorites = getFavorites();
+            favorites = favorites.filter(fav => !(fav.id === id && fav.type === type));
+            saveFavorites(favorites);
+            loadFavoritesDropdown();
+        }
+
+        function loadFavoritesDropdown() {
+            const favorites = getFavorites();
+            favoritesList.innerHTML = '';
+            
+            if (favorites.length === 0) {
+                noFavoritesMsg.style.display = 'block';
+                headerFavoriteBtn.classList.remove('active');
+                favoritesList.appendChild(noFavoritesMsg);
+                return;
+            }
+            
+            noFavoritesMsg.style.display = 'none';
+            headerFavoriteBtn.classList.add('active');
+
+            favorites.forEach(fav => {
+                const item = document.createElement('div');
+                item.className = 'favorite-item';
+                
+                const typeLabel = fav.type === 'movie' ? 'Filme' : 'Série';
+
+                item.innerHTML = `
+                    <img src="${fav.poster}" alt="${fav.title}" class="favorite-poster" onerror="this.src='${DEFAULT_POSTER}'">
+                    <div class="favorite-info">
+                        <div class="favorite-title">${fav.title}</div>
+                        <div class="favorite-meta">${typeLabel} | ${fav.year}</div>
+                    </div>
+                    <button class="remove-favorite" title="Remover">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                `;
+                
+                item.querySelector('.remove-favorite').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    removeFavorite(fav.id, fav.type);
+                });
+                
+                item.addEventListener('click', (e) => {
+                    if (!e.target.closest('.remove-favorite')) {
+                        favoritesDropdown.classList.remove('open');
+                        if (fav.type === 'movie') {
+                            loadMovie(fav.id);
+                        } else {
+                            loadTvShow(fav.id, 1, 1);
+                        }
+                    }
+                });
+
+                favoritesList.appendChild(item);
+            });
         }
     </script>
 </body>
