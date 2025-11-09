@@ -8,14 +8,17 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary: #dc2626;
-            --primary-dark: #b91c1c;
-            --secondary: #94a3b8;
+            /* CORES PRINCIPAIS */
+            --primary: #ff6b6b; /* Cor de destaque principal */
+            --primary-dark: #e05555; /* Cor mais escura para hover */
+            --secondary: #94a3b8; /* Cor secundária */
+            --accent: #4dabf7; /* Cor para elementos clicáveis secundários */
+            --accent-dark: #339af0; /* Cor mais escura para hover de elementos secundários */
+            
             --dark: #f1f5f9;
             --light: #0f172a;
             --border: #334155;
             --card-bg: #1e293b;
-            --accent: #f59e0b;
             --text: #f1f5f9;
             --bg: #0f172a;
             --header-bg: #161b22;
@@ -39,6 +42,23 @@
             line-height: 1.6;
             font-size: 16px;
             min-height: 100vh;
+        }
+
+        /* Animação para o botão de Favoritar */
+        @keyframes heart-pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
+
+        /* Animação para o ícone do Menu Toggle */
+        .favorite-btn i {
+            transition: transform 0.3s ease;
+        }
+        
+        /* Estado do menu aberto para animar o ícone */
+        #headerFavoriteBtn.menu-open i {
+            transform: rotate(45deg);
         }
 
         /* Cabeçalho */
@@ -95,7 +115,7 @@
         }
 
         .beta-tag {
-            background-color: var(--accent);
+            background: var(--primary);
             color: white;
             font-size: 0.7rem;
             padding: 0.2rem 0.5rem;
@@ -109,6 +129,7 @@
             gap: 1rem;
         }
 
+        /* BARRA DE BUSCA MELHORADA - Design mais arredondado */
         .search-container {
             position: relative;
             max-width: 400px;
@@ -118,18 +139,19 @@
         .search-input {
             background-color: var(--header-bg);
             border: 1px solid var(--header-border);
-            border-radius: 6px;
+            border-radius: 25px;
             padding: 0.5rem 2.5rem 0.5rem 1rem;
             font-size: 0.9rem;
             color: var(--header-text);
             width: 100%;
-            transition: all 0.2s;
+            transition: all 0.3s ease;
         }
 
         .search-input:focus {
             outline: none;
             border-color: var(--primary);
             background-color: var(--bg);
+            box-shadow: 0 0 0 2px rgba(255, 107, 107, 0.4);
         }
 
         .search-button {
@@ -141,11 +163,19 @@
             border: none;
             color: var(--secondary);
             cursor: pointer;
-            transition: color 0.2s;
+            transition: all 0.3s ease;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-
+        
         .search-button:hover {
-            color: var(--primary);
+            background: var(--primary);
+            color: white;
+            transform: translateY(-50%) scale(1.1);
         }
 
         /* Auto-complete Popup */
@@ -156,7 +186,7 @@
             right: 0;
             background: var(--overlay-bg);
             border: 1px solid var(--border);
-            border-radius: 0 0 8px 8px;
+            border-radius: 0 0 15px 15px;
             max-height: 300px;
             overflow-y: auto;
             z-index: 1000;
@@ -170,11 +200,12 @@
             padding: 0.75rem 1rem;
             cursor: pointer;
             border-bottom: 1px solid var(--border);
-            transition: background-color 0.2s;
+            transition: all 0.3s ease;
         }
 
         .search-result-item:hover {
             background-color: var(--card-bg);
+            transform: translateX(3px);
         }
 
         .search-result-item:last-child {
@@ -185,7 +216,7 @@
             width: 40px;
             height: 60px;
             object-fit: cover;
-            border-radius: 4px;
+            border-radius: 8px;
             margin-right: 1rem;
             flex-shrink: 0;
         }
@@ -214,6 +245,31 @@
             margin-left: 0.5rem;
         }
 
+        /* BOTÃO DE FAVORITOS NO HEADER - Design mais arredondado */
+        #headerFavoriteBtn {
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        #headerFavoriteBtn:hover {
+            background: var(--primary);
+            transform: scale(1.1);
+            border-color: var(--primary);
+        }
+
+        #headerFavoriteBtn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
         /* Menu de Favoritos - NOVO DESIGN */
         .favorites-menu {
             position: fixed;
@@ -224,7 +280,7 @@
             background: var(--overlay-bg);
             backdrop-filter: blur(10px);
             z-index: 1000;
-            transition: right 0.3s ease;
+            transition: right 0.4s cubic-bezier(0.785, 0.135, 0.15, 0.86);
             display: flex;
             flex-direction: column;
             box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
@@ -255,12 +311,12 @@
         .favorites-action-btn {
             background: var(--card-bg);
             border: 1px solid var(--border);
-            border-radius: 6px;
+            border-radius: 25px;
             padding: 0.6rem 1rem;
             color: var(--text);
             font-size: 0.85rem;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s ease;
             flex: 1;
             min-width: 120px;
             display: flex;
@@ -272,6 +328,9 @@
         .favorites-action-btn:hover {
             background: var(--primary);
             border-color: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
 
         .favorites-list {
@@ -284,24 +343,25 @@
             display: flex;
             align-items: center;
             padding: 1rem;
-            border-radius: 8px;
+            border-radius: 15px;
             margin-bottom: 0.75rem;
             cursor: pointer;
-            transition: background-color 0.2s;
+            transition: all 0.3s ease;
             border: 1px solid transparent;
             background: var(--card-bg);
         }
 
         .favorite-item:hover {
-            background-color: rgba(220, 38, 38, 0.1);
+            background-color: rgba(255, 107, 107, 0.1);
             border-color: var(--primary);
+            transform: translateX(5px);
         }
 
         .favorite-poster {
             width: 50px;
             height: 70px;
             object-fit: cover;
-            border-radius: 6px;
+            border-radius: 8px;
             margin-right: 1rem;
             flex-shrink: 0;
         }
@@ -327,12 +387,21 @@
             color: var(--error);
             cursor: pointer;
             padding: 0.5rem;
-            border-radius: 4px;
-            transition: background-color 0.2s;
+            border-radius: 50%;
+            transition: all 0.3s ease;
         }
 
         .remove-favorite:hover {
             background-color: rgba(239, 68, 68, 0.1);
+            transform: scale(1.1);
+        }
+        
+        #closeFavoritesMenu {
+             transition: all 0.3s ease;
+        }
+
+        #closeFavoritesMenu:hover {
+            color: var(--primary);
         }
 
         .no-favorites {
@@ -351,10 +420,13 @@
             background: rgba(0, 0, 0, 0.5);
             z-index: 999;
             display: none;
+            opacity: 0;
+            transition: opacity 0.4s ease;
         }
 
         .menu-overlay.active {
             display: block;
+            opacity: 1;
         }
 
         /* Container Principal */
@@ -370,7 +442,7 @@
             padding-bottom: 56.25%;
             height: 0;
             overflow: hidden;
-            border-radius: 12px;
+            border-radius: 15px;
             margin-bottom: 2rem;
             background-color: #000;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
@@ -383,35 +455,16 @@
             width: 100%;
             height: 100%;
             border: none;
-            border-radius: 12px;
+            border-radius: 15px;
         }
-
-        /* Botão de Favoritar na Página de Exibição - REMOVIDO DO PLAYER */
-        /* .player-favorite-btn {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: rgba(0, 0, 0, 0.7);
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            color: white;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: all 0.2s;
-            z-index: 10;
-        } */
 
         /* Botão de Favoritar na página de exibição - NOVA POSIÇÃO */
         .player-favorite-btn {
             position: fixed;
             bottom: 7rem;
             right: 2rem;
-            background-color: var(--primary);
-            color: white;
+            background-color: var(--card-bg);
+            color: var(--text);
             border: none;
             border-radius: 50%;
             width: 50px;
@@ -421,18 +474,28 @@
             justify-content: center;
             align-items: center;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             z-index: 90;
+            border: 1px solid var(--border);
         }
 
         .player-favorite-btn:hover {
-            background-color: var(--primary-dark);
+            background: var(--primary);
+            color: white;
             transform: scale(1.1);
+            border-color: var(--primary);
         }
-
+        
+        /* BOTÃO DE FAVORITAR SÓ COLORIDO SE ESTIVER FAVORITADO */
         .player-favorite-btn.active {
             background: var(--primary);
             color: white;
+            border-color: var(--primary);
+        }
+
+        /* Aplica animação ao ser ativado (favoritado) */
+        .player-favorite-btn.active i {
+            animation: heart-pop 0.5s; 
         }
 
         /* Controles de Navegação */
@@ -447,40 +510,55 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            background-color: var(--primary);
+            background: var(--primary);
             color: white;
             padding: 0.75rem 1.5rem;
-            border-radius: 8px;
+            border-radius: 25px;
             border: none;
             cursor: pointer;
             font-weight: 500;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             flex: 1;
             min-width: 150px;
             justify-content: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
         }
 
-        .nav-button:hover {
-            background-color: var(--primary-dark);
-            transform: translateY(-2px);
+        .nav-button:hover:not(:disabled) {
+            background: var(--primary-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .nav-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
 
         .nav-button.secondary {
             background-color: var(--card-bg);
             border: 1px solid var(--border);
+            color: var(--text);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        .nav-button.secondary:hover {
-            background-color: var(--border);
+        .nav-button.secondary:hover:not(:disabled) {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
         }
 
-        /* Informações do Conteúdo */
+        /* Informações do Conteúdo - FUNDO RESTAURADO COMO ERA ANTES */
         .content-info {
             background-color: var(--card-bg);
             padding: 1.5rem;
-            border-radius: 12px;
+            border-radius: 15px;
             margin-bottom: 2rem;
             border-left: 4px solid var(--primary);
+            transition: border-left-color 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         .content-title {
@@ -497,6 +575,10 @@
             flex-wrap: wrap;
             color: var(--secondary);
             font-size: 0.9rem;
+        }
+        
+        .content-meta span {
+            transition: color 0.3s ease;
         }
 
         .content-description {
@@ -531,10 +613,17 @@
         .selector-select {
             background-color: var(--card-bg);
             border: 1px solid var(--border);
-            border-radius: 6px;
+            border-radius: 25px;
             padding: 0.5rem;
             color: var(--text);
             min-width: 120px;
+            transition: all 0.3s ease;
+        }
+        
+        .selector-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(255, 107, 107, 0.4);
         }
 
         /* Seções da Home */
@@ -573,6 +662,7 @@
             background-color: var(--primary);
             border-radius: 50%;
             margin-right: 10px;
+            transition: background-color 0.3s ease;
         }
 
         /* Grid de Conteúdo Horizontal */
@@ -583,20 +673,6 @@
             padding: 0.5rem 0;
             scrollbar-width: thin;
             scrollbar-color: var(--primary) var(--border);
-        }
-
-        .content-grid::-webkit-scrollbar {
-            height: 8px;
-        }
-
-        .content-grid::-webkit-scrollbar-track {
-            background: var(--border);
-            border-radius: 4px;
-        }
-
-        .content-grid::-webkit-scrollbar-thumb {
-            background: var(--primary);
-            border-radius: 4px;
         }
 
         /* Indicador de rolagem moderno e minimalista */
@@ -610,20 +686,20 @@
         }
 
         .content-grid::-webkit-scrollbar-thumb {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            background: var(--primary);
             border-radius: 10px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
         .content-grid::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            background: var(--primary-dark);
         }
 
         .content-card {
             background-color: var(--card-bg);
-            border-radius: 8px;
+            border-radius: 15px;
             overflow: hidden;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             cursor: pointer;
             border: 1px solid var(--border);
             flex: 0 0 160px;
@@ -661,6 +737,7 @@
             color: var(--secondary);
         }
 
+        /* BOTÃO DE FAVORITAR NOS CARDS - Só colorido se estiver favoritado */
         .favorite-btn {
             position: absolute;
             top: 8px;
@@ -675,17 +752,24 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            transition: all 0.2s;
+            transition: all 0.3s ease;
             z-index: 10;
         }
-
-        .favorite-btn:hover {
-            background: rgba(220, 38, 38, 0.9);
+        
+        .favorite-btn:not(#headerFavoriteBtn):hover {
+            background: rgba(255, 107, 107, 0.9);
+            transform: scale(1.1);
         }
 
-        .favorite-btn.active {
+        /* SÓ FICA COLORIDO SE ESTIVER FAVORITADO */
+        .favorite-btn.active:not(#headerFavoriteBtn) {
             background: var(--primary);
             color: white;
+        }
+        
+        /* Aplica animação ao ser ativado (favoritado) */
+        .favorite-btn.active:not(#headerFavoriteBtn) i {
+            animation: heart-pop 0.5s; 
         }
 
         /* Resultados da Busca */
@@ -708,22 +792,23 @@
             align-items: center;
             background-color: var(--card-bg);
             padding: 1rem;
-            border-radius: 8px;
+            border-radius: 15px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s ease;
             border: 1px solid transparent;
         }
 
         .search-list-item:hover {
             border-color: var(--primary);
             transform: translateX(5px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         .search-list-poster {
             width: 60px;
             height: 90px;
             object-fit: cover;
-            border-radius: 4px;
+            border-radius: 8px;
             margin-right: 1rem;
             flex-shrink: 0;
         }
@@ -759,7 +844,7 @@
             position: fixed;
             bottom: 2rem;
             right: 2rem;
-            background-color: var(--primary);
+            background: var(--primary);
             color: white;
             border: none;
             border-radius: 50%;
@@ -770,13 +855,13 @@
             justify-content: center;
             align-items: center;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             z-index: 90;
         }
 
         .back-to-home:hover {
-            background-color: var(--primary-dark);
-            transform: scale(1.1);
+            background: var(--primary-dark);
+            transform: scale(1.1) rotate(5deg);
         }
 
         /* Estados de Carregamento e Erro */
@@ -812,7 +897,7 @@
             display: none;
             background-color: var(--card-bg);
             padding: 1.5rem;
-            border-radius: 12px;
+            border-radius: 15px;
             border-left: 4px solid var(--error);
             margin-bottom: 2rem;
             text-align: center;
@@ -858,12 +943,13 @@
         .footer-link {
             color: var(--primary);
             text-decoration: none;
-            transition: color 0.2s;
+            transition: all 0.3s ease;
         }
 
         .footer-link:hover {
             color: var(--primary-dark);
             text-decoration: underline;
+            transform: translateY(-1px);
         }
 
         /* Responsividade - Melhorias para Mobile */
@@ -995,7 +1081,6 @@
                     <div class="search-results" id="searchResults"></div>
                 </div>
                 
-                <!-- Botão de menu de favoritos atualizado com símbolo de + -->
                 <button class="favorite-btn" id="headerFavoriteBtn" title="Meus Favoritos">
                     <i class="fas fa-plus"></i>
                 </button>
@@ -1003,7 +1088,6 @@
         </div>
     </header>
 
-    <!-- Menu de favoritos - NOVO DESIGN -->
     <div class="menu-overlay" id="menuOverlay"></div>
     <div class="favorites-menu" id="favoritesMenu">
         <div class="favorites-header">
@@ -1032,10 +1116,8 @@
     </div>
 
     <main class="container">
-        <!-- Player View -->
         <div id="playerWrapper" style="display: none;">
             <div class="player-wrapper">
-                <!-- Botão de favoritar REMOVIDO do player -->
                 <iframe id="player" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen loading="lazy" title="Yoshikawa Player"></iframe>
             </div>
 
@@ -1070,7 +1152,6 @@
             </div>
         </div>
 
-        <!-- Home View -->
         <div class="home-sections" id="homeSections">
             <section class="section">
                 <div class="section-header">
@@ -1087,7 +1168,6 @@
             </section>
         </div>
 
-        <!-- Search Results View -->
         <div class="search-results-section" id="searchResultsSection">
             <div class="section-header">
                 <h2 class="section-title">Resultados da Busca</h2>
@@ -1096,13 +1176,11 @@
             <div id="searchResultsGrid" class="search-list"></div>
         </div>
 
-        <!-- Loading State -->
         <div class="loading" id="loadingState">
             <div class="spinner"></div>
             <p>Carregando conteúdo...</p>
         </div>
 
-        <!-- Error State -->
         <div class="error-message" id="errorState">
             <h3>
                 <i class="fas fa-exclamation-triangle"></i>
@@ -1116,12 +1194,10 @@
         </div>
     </main>
 
-    <!-- Botão de favoritar na página de exibição - NOVA POSIÇÃO (acima do botão voltar) -->
     <button class="player-favorite-btn" id="playerFavoriteBtn" title="Adicionar aos Favoritos">
         <i class="fas fa-heart"></i>
     </button>
 
-    <!-- Botão Voltar para Home -->
     <button class="back-to-home" id="backToHomeButton" title="Voltar para Home">
         <i class="fas fa-home"></i>
     </button>
@@ -1267,11 +1343,13 @@
         function toggleFavoritesMenu() {
             favoritesMenu.classList.toggle('open');
             menuOverlay.classList.toggle('active');
+            headerFavoriteBtn.classList.toggle('menu-open'); // ANIMAÇÃO TOGGLE
         }
 
         function closeMenu() {
             favoritesMenu.classList.remove('open');
             menuOverlay.classList.remove('active');
+            headerFavoriteBtn.classList.remove('menu-open'); // ANIMAÇÃO TOGGLE
         }
 
         // Funções de UI
@@ -1417,7 +1495,7 @@
         async function loadMovie(tmdbId) {
             showLoading();
             try {
-                const movieUrl = `https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${TMDB_API_KEY}&language=pt-BR&append_to_response=external_ids`;
+                const movieUrl = `https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${TMDB_API_KEY}&language=pt-BR&append_to_response=external_ids,images`;
                 const movieResponse = await fetch(movieUrl);
                 const movieData = await movieResponse.json();
 
@@ -1440,7 +1518,9 @@
                     type: 'movie',
                     id: movieData.id,
                     tmdbId: movieData.id,
-                    title: movieData.title
+                    title: movieData.title,
+                    poster: movieData.poster_path ? `https://image.tmdb.org/t/p/w500${movieData.poster_path}` : DEFAULT_POSTER,
+                    year: movieData.release_date ? new Date(movieData.release_date).getFullYear() : 'N/A'
                 };
 
                 // Atualizar botão de favoritar
@@ -1474,6 +1554,8 @@
                 currentContent.type = 'tv';
                 currentContent.totalSeasons = tvData.number_of_seasons;
                 currentContent.title = tvData.name;
+                currentContent.poster = tvData.poster_path ? `https://image.tmdb.org/t/p/w500${tvData.poster_path}` : DEFAULT_POSTER;
+                currentContent.year = tvData.first_air_date ? new Date(tvData.first_air_date).getFullYear() : 'N/A';
                 currentContent.seasonDetails = tvData.seasons.filter(s => s.season_number > 0);
                 currentContent.season = seasonNumber;
                 currentContent.episode = episodeNumber;
@@ -1586,7 +1668,11 @@
                 const currentSeasonDetail = currentContent.seasonDetails.find(s => s.season_number === newSeason);
                 if (!currentSeasonDetail) throw new Error('Detalhes da temporada não encontrados');
                 
-                const currentSeasonEpisodeCount = currentSeasonDetail.episode_count;
+                // Busca detalhes da temporada para contar episódios com mais precisão
+                const seasonUrl = `https://api.themoviedb.org/3/tv/${currentContent.tmdbId}/season/${newSeason}?api_key=${TMDB_API_KEY}&language=pt-BR`;
+                const seasonResponse = await fetch(seasonUrl);
+                const seasonData = await seasonResponse.json();
+                const currentSeasonEpisodeCount = seasonData.episodes.length;
                 
                 if (direction === 1) {
                     if (newEpisode > currentSeasonEpisodeCount) {
@@ -1608,7 +1694,7 @@
                             const prevSeasonUrl = `https://api.themoviedb.org/3/tv/${currentContent.tmdbId}/season/${newSeason}?api_key=${TMDB_API_KEY}&language=pt-BR`;
                             const prevSeasonResponse = await fetch(prevSeasonUrl);
                             const prevSeasonData = await prevSeasonResponse.json();
-                            newEpisode = prevSeasonData.episodes.length;
+                            newEpisode = prevSeasonData.episodes.length; // Último episódio da temporada anterior
                         } else {
                             hideLoading();
                             alert('Este é o primeiro episódio');
@@ -1635,7 +1721,8 @@
                 const moviesData = await moviesResponse.json();
                 const tvData = await tvResponse.json();
 
-                const allContent = [...(moviesData.results || []), ...(tvData.results || [])]
+                const allContent = [...(moviesData.results || []).map(item => ({...item, media_type: 'movie'})), 
+                                    ...(tvData.results || []).map(item => ({...item, media_type: 'tv'}))]
                     .filter(item => item.poster_path)
                     .sort((a, b) => new Date(b.release_date || b.first_air_date) - new Date(a.release_date || a.first_air_date))
                     .slice(0, 15);
@@ -1656,7 +1743,8 @@
                 const moviesData = await moviesResponse.json();
                 const tvData = await tvResponse.json();
 
-                const allContent = [...(moviesData.results || []), ...(tvData.results || [])]
+                const allContent = [...(moviesData.results || []).map(item => ({...item, media_type: 'movie'})), 
+                                    ...(tvData.results || []).map(item => ({...item, media_type: 'tv'}))]
                     .filter(item => item.poster_path)
                     .sort(() => 0.5 - Math.random())
                     .slice(0, 15);
@@ -1681,7 +1769,8 @@
                 const response = await fetch(recommendationsUrl);
                 const data = await response.json();
                 
-                const content = (data.results || []).filter(item => item.poster_path).slice(0, 15);
+                const content = (data.results || []).map(item => ({...item, media_type: item.media_type || type}))
+                    .filter(item => item.poster_path).slice(0, 15);
                 displayContentGrid(content, container, type);
             } catch (error) {
                 console.error('Erro ao carregar recomendações:', error);
@@ -1709,7 +1798,7 @@
                 const itemId = item.id;
                 
                 const favorites = getFavorites();
-                const isFavorite = favorites.some(fav => fav.id === itemId && fav.type === mediaType);
+                const isFavorite = favorites.some(fav => fav.id == itemId && fav.type === mediaType);
 
                 card.innerHTML = `
                     <img src="${posterPath}" alt="${title}" class="content-poster" onerror="this.src='${DEFAULT_POSTER}'">
@@ -1733,8 +1822,20 @@
                 const favoriteBtn = card.querySelector('.favorite-btn');
                 favoriteBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
+                    const wasFavorite = favoriteBtn.classList.contains('active');
                     toggleFavorite(itemId, mediaType, title, posterPath, year);
-                    favoriteBtn.classList.toggle('active');
+                    
+                    // Adiciona/remove a classe 'active' para a animação
+                    if (!wasFavorite) {
+                        favoriteBtn.classList.add('active');
+                        // Força reflow para garantir a animação ao adicionar
+                        favoriteBtn.querySelector('i').style.animation = 'none';
+                        void favoriteBtn.querySelector('i').offsetWidth; 
+                        favoriteBtn.querySelector('i').style.animation = 'heart-pop 0.5s'; 
+                    } else {
+                        // Remove imediatamente a cor ao desfavoritar
+                        favoriteBtn.classList.remove('active');
+                    }
                     loadFavoritesMenu();
                 });
 
@@ -1832,7 +1933,7 @@
 
         function toggleFavorite(id, type, title, poster, year) {
             const favorites = getFavorites();
-            const existingIndex = favorites.findIndex(fav => fav.id === id && fav.type === type);
+            const existingIndex = favorites.findIndex(fav => fav.id == id && fav.type === type);
             
             if (existingIndex !== -1) {
                 favorites.splice(existingIndex, 1);
@@ -1850,11 +1951,14 @@
             
             const favorites = getFavorites();
             const existingIndex = favorites.findIndex(fav => 
-                fav.id === currentContent.id && fav.type === currentContent.type
+                fav.id == currentContent.id && fav.type === currentContent.type
             );
             
-            if (existingIndex !== -1) {
+            const wasFavorite = existingIndex !== -1;
+            
+            if (wasFavorite) {
                 favorites.splice(existingIndex, 1);
+                // Remove imediatamente a cor ao desfavoritar
                 playerFavoriteBtn.classList.remove('active');
             } else {
                 const poster = currentContent.poster || DEFAULT_POSTER;
@@ -1866,6 +1970,10 @@
                     year: currentContent.year || ''
                 });
                 playerFavoriteBtn.classList.add('active');
+                // Força reflow para garantir a animação ao adicionar
+                playerFavoriteBtn.querySelector('i').style.animation = 'none';
+                void playerFavoriteBtn.querySelector('i').offsetWidth; 
+                playerFavoriteBtn.querySelector('i').style.animation = 'heart-pop 0.5s'; 
             }
             
             saveFavorites(favorites);
@@ -1875,7 +1983,7 @@
         function updatePlayerFavoriteButton() {
             const favorites = getFavorites();
             const isFavorite = favorites.some(fav => 
-                fav.id === currentContent.id && fav.type === currentContent.type
+                fav.id == currentContent.id && fav.type === currentContent.type
             );
             
             if (isFavorite) {
@@ -1887,10 +1995,14 @@
 
         function removeFavorite(id, type) {
             let favorites = getFavorites();
-            favorites = favorites.filter(fav => !(fav.id === id && fav.type === type));
+            favorites = favorites.filter(fav => !(fav.id == id && fav.type === type));
             saveFavorites(favorites);
             loadFavoritesMenu();
-            updatePlayerFavoriteButton();
+            
+            // Se o conteúdo atual for removido, atualiza o botão fixo
+            if (currentContent.id == id && currentContent.type === type) {
+                updatePlayerFavoriteButton();
+            }
         }
 
         function loadFavoritesMenu() {
@@ -1984,7 +2096,7 @@
                             
                             importedFavorites.forEach(fav => {
                                 const exists = mergedFavorites.some(existing => 
-                                    existing.id === fav.id && existing.type === fav.type
+                                    existing.id == fav.id && existing.type === fav.type
                                 );
                                 if (!exists) {
                                     mergedFavorites.push(fav);
@@ -1994,7 +2106,7 @@
                             saveFavorites(mergedFavorites);
                             loadFavoritesMenu();
                             updatePlayerFavoriteButton();
-                            alert(`Favoritos importados com sucesso! ${importedFavorites.length} itens processados.`);
+                            alert(`Favoritos importados com sucesso! ${importedFavorites.length - currentFavorites.length} novos itens adicionados.`);
                         } else {
                             alert('Arquivo inválido. O arquivo deve conter uma lista de favoritos.');
                         }
