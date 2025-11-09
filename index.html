@@ -2,171 +2,160 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Yoshikawa Streaming - Parte dos sistemas Yoshikawa.">
-    <meta property="og:title" content="Yoshikawa Player">
-    <meta property="og:description" content="Assista a filmes e séries com o Yoshikawa Player, parte dos sistemas Yoshikawa.">
-    <meta property="og:image" content="https://yoshikawa-bot.github.io/cache/images/9e8ac284.jpg">
-    <meta property="og:url" content="https://seu-site.com">
-    <meta name="twitter:card" content="summary_large_image">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Yoshikawa Streaming - Assista a filmes e séries">
     <title>Yoshikawa Player</title>
-    <link rel="preload" href="https://yoshikawa-bot.github.io/cache/images/9e8ac284.jpg" as="image">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --secondary: #94a3b8;
+            --dark: #f1f5f9;
+            --light: #0f172a;
+            --border: #334155;
+            --card-bg: #1e293b;
+            --accent: #f59e0b;
+            --text: #f1f5f9;
+            --bg: #0f172a;
+            --header-bg: #161b22;
+            --header-border: #30363d;
+            --header-text: #f0f6fc;
+            --success: #10b981;
+            --error: #ef4444;
+        }
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            color: #fff;
+            font-family: 'Inter', Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            font-size: 16px;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow-y: scroll;
-            -webkit-overflow-scrolling: touch;
-            scroll-behavior: smooth;
-            background-color: #383838;
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            position: relative;
         }
-        body::before {
-            content: '';
-            position: fixed;
+
+        /* Cabeçalho */
+        .github-header {
+            background-color: var(--header-bg);
+            border-bottom: 1px solid var(--header-border);
+            padding: 0.75rem 0;
+            position: sticky;
             top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, .5);
-            z-index: -1;
+            z-index: 100;
         }
-        :root {
-            --bg-color: rgba(0, 0, 0, .25);
-            --highlight: rgba(255, 255, 255, .15);
-            --text: #fff;
-        }
-        header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            padding: 12px 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 1000;
-        }
-        header .glass-filter,
-        header .glass-overlay,
-        header .glass-specular {
-            position: absolute;
-            inset: 0;
-        }
-        header .glass-filter {
-            z-index: 1;
-            backdrop-filter: blur(10px);
-            filter: url(#glass-distortion) saturate(120%) brightness(1.15);
-        }
-        header .glass-overlay {
-            z-index: 2;
-            background: var(--bg-color);
-        }
-        header .glass-specular {
-            z-index: 3;
-            box-shadow: inset 0 -1px 1px var(--highlight);
-        }
-        header .header-content {
-            position: relative;
-            z-index: 4;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            font-size: 18px;
-            font-weight: 500;
-        }
-        .menu-icon {
-            font-size: 20px;
-            cursor: pointer;
-            color: var(--text);
-            transition: transform .3s ease, color .3s ease;
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .menu-icon.active {
-            transform: rotate(45deg);
-            color: #007aff;
-        }
-        .support-popup {
-            display: block;
-            position: absolute;
-            top: 60px;
-            right: 24px;
-            padding: 12px 16px;
-            border-radius: 12px;
-            z-index: 1001;
-            width: auto;
-            max-width: 200px;
-            font-size: 14px;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(10px);
-            transition: opacity .4s ease, transform .4s ease, visibility .4s ease;
-        }
-        .support-popup.visible {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-        .support-popup .glass-filter,
-        .support-popup .glass-overlay,
-        .support-popup .glass-specular {
-            position: absolute;
-            inset: 0;
-            border-radius: inherit;
-        }
-        .support-popup .glass-filter {
-            z-index: 1;
-            backdrop-filter: blur(4px);
-            filter: url(#glass-distortion) saturate(120%) brightness(1.15);
-        }
-        .support-popup .glass-overlay {
-            z-index: 2;
-            background: var(--bg-color);
-        }
-        .support-popup .glass-specular {
-            z-index: 3;
-            box-shadow: inset 1px 1px 1px var(--highlight);
-        }
-        .support-popup .glass-content {
-            position: relative;
-            z-index: 4;
-            color: var(--text);
-        }
-        .support-popup a {
-            color: #007aff;
-            text-decoration: none;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .support-popup a:hover {
-            text-decoration: underline;
-        }
-        .container {
-            width: 100%;
+
+        .header-content {
             max-width: 1280px;
-            margin: 7rem auto 0;
+            margin: 0 auto;
             padding: 0 1.5rem;
-            flex: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
         }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-shrink: 0;
+        }
+
+        .logo-image {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            object-fit: cover;
+            flex-shrink: 0;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .logo-image:hover {
+            transform: scale(1.05);
+        }
+
+        .logo-text {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--header-text);
+        }
+
+        .beta-tag {
+            background-color: var(--accent);
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .search-container {
+            position: relative;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .search-input {
+            background-color: var(--header-bg);
+            border: 1px solid var(--header-border);
+            border-radius: 6px;
+            padding: 0.5rem 2.5rem 0.5rem 1rem;
+            font-size: 0.9rem;
+            color: var(--header-text);
+            width: 100%;
+            transition: all 0.2s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background-color: var(--bg);
+        }
+
+        .search-button {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--secondary);
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .search-button:hover {
+            color: var(--primary);
+        }
+
+        /* Container Principal */
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        /* Player */
         .player-wrapper {
             position: relative;
             padding-bottom: 56.25%;
@@ -174,31 +163,10 @@
             overflow: hidden;
             border-radius: 12px;
             margin-bottom: 2rem;
-            transition: transform .3s ease;
+            background-color: #000;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
         }
-        .player-wrapper:hover {
-            transform: translateY(-4px);
-        }
-        .player-wrapper .glass-filter,
-        .player-wrapper .glass-overlay,
-        .player-wrapper .glass-specular {
-            position: absolute;
-            inset: 0;
-            border-radius: inherit;
-        }
-        .player-wrapper .glass-filter {
-            z-index: 1;
-            backdrop-filter: blur(5px);
-            filter: url(#glass-distortion) saturate(120%) brightness(1.15);
-        }
-        .player-wrapper .glass-overlay {
-            z-index: 2;
-            background: var(--bg-color);
-        }
-        .player-wrapper .glass-specular {
-            z-index: 3;
-            box-shadow: inset 1px 1px 1px var(--highlight);
-        }
+
         .player-wrapper iframe {
             position: absolute;
             top: 0;
@@ -207,277 +175,708 @@
             height: 100%;
             border: none;
             border-radius: 12px;
-            z-index: 4;
         }
-        .card {
-            position: relative;
-            padding: 1.5rem;
-            border-radius: 12px;
-            margin-bottom: 1.5rem;
-            transition: transform .3s ease;
+
+        /* Controles de Navegação */
+        .navigation-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
         }
-        .card:hover {
-            transform: translateY(-2px);
-        }
-        .card .glass-filter,
-        .card .glass-overlay,
-        .card .glass-specular {
-            position: absolute;
-            inset: 0;
-            border-radius: inherit;
-        }
-        .card .glass-filter {
-            z-index: 1;
-            backdrop-filter: blur(10px);
-            filter: url(#glass-distortion) saturate(120%) brightness(1.15);
-        }
-        .card .glass-overlay {
-            z-index: 2;
-            background: var(--bg-color);
-        }
-        .card .glass-specular {
-            z-index: 3;
-            box-shadow: inset 1px 1px 1px var(--highlight);
-        }
-        .card .glass-content {
-            position: relative;
-            z-index: 4;
-        }
-        .card h2 {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: .75rem;
+
+        .nav-button {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 0.5rem;
+            background-color: var(--primary);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            flex: 1;
+            min-width: 150px;
+            justify-content: center;
+        }
+
+        .nav-button:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .nav-button.secondary {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+        }
+
+        .nav-button.secondary:hover {
+            background-color: var(--border);
+        }
+
+        /* Informações do Conteúdo */
+        .content-info {
+            background-color: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            border-left: 4px solid var(--primary);
+        }
+
+        .content-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
             color: var(--text);
         }
-        .card p {
-            color: #ccc;
-            font-size: .9375rem;
-            line-height: 1.5;
+
+        .content-meta {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            color: var(--secondary);
+            font-size: 0.9rem;
         }
-        .footer {
-            position: relative;
-            padding: 1.5rem;
-            text-align: center;
-            font-size: .8125rem;
-            color: #ccc;
-            width: 100%;
-            margin-top: auto;
+
+        .content-description {
+            color: var(--text);
+            line-height: 1.6;
         }
-        .footer .glass-filter,
-        .footer .glass-overlay,
-        .footer .glass-specular {
-            position: absolute;
-            inset: 0;
+
+        /* Recomendações */
+        .recommendations-section {
+            margin-bottom: 2rem;
         }
-        .footer .glass-filter {
-            z-index: 1;
-            backdrop-filter: blur(10px);
-            filter: url(#glass-distortion) saturate(120%) brightness(1.15);
-        }
-        .footer .glass-overlay {
-            z-index: 2;
-            background: var(--bg-color);
-        }
-        .footer .glass-specular {
-            z-index: 3;
-            box-shadow: inset 0 1px 1px var(--highlight);
-        }
-        .footer .glass-content {
-            position: relative;
-            z-index: 4;
-        }
-        .footer a {
-            color: #007aff;
-            text-decoration: none;
-            transition: color .3s ease;
-            display: inline-flex;
+
+        .section-title {
+            font-size: 1.4rem;
+            color: var(--text);
+            margin-bottom: 1rem;
+            display: flex;
             align-items: center;
-            gap: 4px;
         }
-        .footer a:hover {
-            color: #3b9eff;
+
+        .section-title::before {
+            content: "";
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: var(--primary);
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .recommendations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .recommendation-card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            overflow: hidden;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: 1px solid var(--border);
+        }
+
+        .recommendation-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            border-color: var(--primary);
+        }
+
+        .recommendation-poster {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+        }
+
+        .recommendation-info {
+            padding: 1rem;
+        }
+
+        .recommendation-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+            font-size: 0.95rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .recommendation-year {
+            color: var(--secondary);
+            font-size: 0.85rem;
+        }
+
+        /* Estados de Carregamento e Erro */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 3rem;
+            color: var(--secondary);
+        }
+
+        .error-message {
+            background-color: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border-left: 4px solid var(--error);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .error-message h3 {
+            color: var(--error);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--header-bg);
+            color: var(--secondary);
+            padding: 1.5rem 0;
+            text-align: center;
+            font-size: 0.9rem;
+            margin-top: 2rem;
+            border-top: 1px solid var(--header-border);
+        }
+
+        .footer-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .footer-link {
+            color: var(--primary);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-link:hover {
+            color: var(--primary-dark);
             text-decoration: underline;
         }
+
+        /* Responsividade */
         @media (max-width: 768px) {
             .container {
-                margin-top: 6rem;
-                padding: 0 1rem;
-            }
-            .support-popup {
-                top: 50px;
-                right: 12px;
-                max-width: 240px;
-            }
-        }
-        @media (max-width: 480px) {
-            .container {
-                margin-top: 5.5rem;
-            }
-            .card {
                 padding: 1rem;
             }
-            .card h2 {
-                font-size: 1.1rem;
+
+            .header-content {
+                padding: 0 1rem;
+                flex-wrap: wrap;
             }
-            .card p {
-                font-size: .875rem;
+
+            .search-container {
+                order: 3;
+                max-width: 100%;
+                margin-top: 0.5rem;
+            }
+
+            .navigation-controls {
+                flex-direction: column;
+            }
+
+            .nav-button {
+                min-width: auto;
+            }
+
+            .recommendations-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 1rem;
+            }
+
+            .recommendation-poster {
+                height: 220px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo-name {
+                font-size: 1rem;
+            }
+            
+            .content-title {
+                font-size: 1.4rem;
+            }
+            
+            .recommendations-grid {
+                grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            }
+            
+            .recommendation-poster {
+                height: 190px;
             }
         }
     </style>
 </head>
 <body>
-    <svg style="display:none">
-        <filter id="glass-distortion">
-            <feTurbulence baseFrequency="0.008" numOctaves="2" result="noise" type="turbulence" />
-            <feDisplacementMap in="SourceGraphic" in2="noise" scale="77" />
-        </filter>
-    </svg>
-
-    <header>
-        <div class="glass-filter"></div>
-        <div class="glass-overlay"></div>
-        <div class="glass-specular"></div>
+    <header class="github-header">
         <div class="header-content">
-            <span class="header-text left">© Yoshikawa</span>
-            <div class="menu-icon" id="menuButton" role="button" aria-label="Abrir menu de suporte" aria-expanded="false">
-                <i class="fas fa-bars"></i>
+            <div class="logo-container">
+                <a href="https://yoshikawa-bot.github.io/site">
+                    <img src="https://yoshikawa-bot.github.io/cache/images/47126171.jpg" alt="Yoshikawa Bot" class="logo-image">
+                </a>
+                <div class="logo-text">
+                    <span class="logo-name">Yoshikawa</span>
+                    <span class="beta-tag">STREAMING</span>
+                </div>
+            </div>
+            
+            <div class="search-container">
+                <input type="text" class="search-input" id="searchInput" placeholder="Buscar filmes e séries...">
+                <button class="search-button" id="searchButton">
+                    <i class="fas fa-search"></i>
+                </button>
             </div>
         </div>
     </header>
 
-    <div class="support-popup" id="supportPopup">
-        <div class="glass-filter"></div>
-        <div class="glass-overlay"></div>
-        <div class="glass-specular"></div>
-        <div class="glass-content">
-            <p>Precisa de ajuda? <a href="https://wa.me/18589258076" rel="noopener noreferrer" target="_blank"><i class="fab fa-whatsapp"></i> Contate nosso suporte</a></p>
-        </div>
-    </div>
-
     <main class="container">
+        <!-- Player -->
         <div class="player-wrapper">
-            <div class="glass-filter"></div>
-            <div class="glass-overlay"></div>
-            <div class="glass-specular"></div>
             <iframe id="player" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen loading="lazy" title="Yoshikawa Player"></iframe>
         </div>
-        
-        <div class="card">
-            <div class="glass-filter"></div>
-            <div class="glass-overlay"></div>
-            <div class="glass-specular"></div>
-            <div class="glass-content">
-                <h2><i class="fas fa-star"></i> Recomendações</h2>
-                <p><i class="fas fa-check-circle" style="color:#4caf50;margin-right:6px"></i> Para uma melhor performance e bloqueio eficiente de anúncios, recomendamos o uso dos navegadores <strong>Microsoft Edge</strong> ou <strong>Brave.</p>
-                <p style="margin-top:8px"><i class="fas fa-times-circle" style="color:#f44336;margin-right:6px"></i> Evite utilizar sem <strong>Adblock</strong>.</p>
+
+        <!-- Controles de Navegação -->
+        <div class="navigation-controls" id="navigationControls" style="display: none;">
+            <button class="nav-button secondary" id="prevButton">
+                <i class="fas fa-arrow-left"></i>
+                Episódio Anterior
+            </button>
+            <button class="nav-button" id="nextButton">
+                Próximo Episódio
+                <i class="fas fa-arrow-right"></i>
+            </button>
+            <button class="nav-button secondary" id="changeSeasonButton">
+                <i class="fas fa-exchange-alt"></i>
+                Mudar Temporada
+            </button>
+        </div>
+
+        <!-- Informações do Conteúdo -->
+        <div class="content-info" id="contentInfo" style="display: none;">
+            <h1 class="content-title" id="contentTitle"></h1>
+            <div class="content-meta" id="contentMeta"></div>
+            <p class="content-description" id="contentDescription"></p>
+        </div>
+
+        <!-- Recomendações -->
+        <div class="recommendations-section">
+            <h2 class="section-title">Recomendações</h2>
+            <div class="recommendations-grid" id="recommendationsGrid">
+                <!-- As recomendações serão carregadas aqui -->
             </div>
+        </div>
+
+        <!-- Estado de Carregamento -->
+        <div class="loading" id="loadingState">
+            <i class="fas fa-spinner fa-spin"></i>
+            <span style="margin-left: 10px;">Carregando conteúdo...</span>
+        </div>
+
+        <!-- Mensagem de Erro -->
+        <div class="error-message" id="errorState" style="display: none;">
+            <h3><i class="fas fa-exclamation-triangle"></i> Ocorreu um erro</h3>
+            <p id="errorMessage"></p>
+            <button class="nav-button" style="margin-top: 1rem;" onclick="location.reload()">
+                <i class="fas fa-redo"></i>
+                Recarregar Página
+            </button>
         </div>
     </main>
 
-    <footer class="footer">
-        <div class="glass-filter"></div>
-        <div class="glass-overlay"></div>
-        <div class="glass-specular"></div>
-        <div class="glass-content">
+    <footer>
+        <div class="footer-content">
             <p>© 2025 Yoshikawa Bot · Todos os direitos reservados.</p>
-            <p><a href="https://yoshikawa-bot.github.io/termos/" rel="noopener noreferrer" target="_blank">Termos de uso</a></p>
+            <div class="footer-links">
+                <a href="https://yoshikawa-bot.github.io/termos/" class="footer-link" target="_blank">Termos de Uso</a>
+                <a href="https://wa.me/18589258076" class="footer-link" target="_blank">Suporte</a>
+            </div>
         </div>
     </footer>
 
     <script>
-        const menuButton = document.getElementById('menuButton');
-        const supportPopup = document.getElementById('supportPopup');
+        // Configurações
+        const TMDB_API_KEY = '66223dd3ad2885cf1129b181c7826287';
+        const STREAM_BASE_URL = 'https://superflixapi.blog';
+        const DEFAULT_POSTER = 'https://yoshikawa-bot.github.io/cache/images/6e595b38.jpg';
 
-        menuButton.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const isActive = menuButton.classList.toggle('active');
-            supportPopup.classList.toggle('visible');
-            const icon = menuButton.querySelector('i');
-            icon.classList.toggle('fa-bars');
-            icon.classList.toggle('fa-times');
-            menuButton.setAttribute('aria-expanded', isActive ? 'true' : 'false');
-        });
+        // Elementos DOM
+        const player = document.getElementById('player');
+        const navigationControls = document.getElementById('navigationControls');
+        const contentInfo = document.getElementById('contentInfo');
+        const contentTitle = document.getElementById('contentTitle');
+        const contentMeta = document.getElementById('contentMeta');
+        const contentDescription = document.getElementById('contentDescription');
+        const recommendationsGrid = document.getElementById('recommendationsGrid');
+        const loadingState = document.getElementById('loadingState');
+        const errorState = document.getElementById('errorState');
+        const errorMessage = document.getElementById('errorMessage');
+        const searchInput = document.getElementById('searchInput');
+        const searchButton = document.getElementById('searchButton');
+        const prevButton = document.getElementById('prevButton');
+        const nextButton = document.getElementById('nextButton');
+        const changeSeasonButton = document.getElementById('changeSeasonButton');
 
-        document.addEventListener('click', (e) => {
-            if (!supportPopup.contains(e.target) && !menuButton.contains(e.target)) {
-                supportPopup.classList.remove('visible');
-                menuButton.classList.remove('active');
-                const icon = menuButton.querySelector('i');
-                icon.classList.remove('fa-times');
-                icon.classList.add('fa-bars');
-                menuButton.setAttribute('aria-expanded', 'false');
-            }
-        });
+        // Estado atual
+        let currentContent = {
+            type: null, // 'movie' ou 'tv'
+            id: null,
+            season: null,
+            episode: null,
+            title: null
+        };
 
-        window.addEventListener('scroll', () => {
-            supportPopup.classList.remove('visible');
-            menuButton.classList.remove('active');
-            const icon = menuButton.querySelector('i');
-            icon.classList.remove('fa-times');
-            icon.classList.add('fa-bars');
-            menuButton.setAttribute('aria-expanded', 'false');
-        });
-
-        (async () => {
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', async () => {
             const params = new URLSearchParams(window.location.search);
             const imdbId = params.get('imdb_id');
             const tmdbId = params.get('tmdb_id');
             const season = params.get('season');
             const episode = params.get('episode');
-            const tmdbApiKey = '66223dd3ad2885cf1129b181c7826287';
-            const defaultBackdrop = 'https://yoshikawa-bot.github.io/cache/images/9e8ac284.jpg';
-            
-            // Player Base URL and Customization
-            const STREAM_BASE_URL = 'https://superflixapi.blog'; 
-            const PLAYER_CUSTOM_SERIE = '#noEpList#noLink'; // Remove lista de episódios e botão de link
-            const PLAYER_CUSTOM_FILME = '#noLink';          // Remove botão de link
 
             try {
-                let playerUrl;
-                let backdropUrl = defaultBackdrop;
+                if (imdbId) {
+                    await loadMovieByImdbId(imdbId);
+                } else if (tmdbId && season && episode) {
+                    await loadTvShow(tmdbId, parseInt(season), parseInt(episode));
+                } else {
+                    // Carregar recomendações populares se não há conteúdo específico
+                    await loadPopularContent();
+                    loadingState.style.display = 'none';
+                }
+            } catch (error) {
+                showError('Erro ao carregar o conteúdo: ' + error.message);
+            }
+        });
 
-                function updateBackground(imageUrl) {
-                    document.body.style.backgroundImage = `url('${imageUrl}'), linear-gradient(to bottom, #1a1a1a, #000)`;
+        // Funções principais
+        async function loadMovieByImdbId(imdbId) {
+            try {
+                loadingState.style.display = 'flex';
+                
+                // Buscar filme pelo IMDb ID
+                const findUrl = `https://api.themoviedb.org/3/find/${imdbId}?api_key=${TMDB_API_KEY}&external_source=imdb_id&language=pt-BR`;
+                const findResponse = await fetch(findUrl);
+                if (!findResponse.ok) throw new Error('Filme não encontrado');
+                
+                const findData = await findResponse.json();
+                if (!findData.movie_results || findData.movie_results.length === 0) {
+                    throw new Error('Filme não encontrado na base de dados');
+                }
+                
+                const movie = findData.movie_results[0];
+                await loadMovie(movie.id);
+            } catch (error) {
+                throw error;
+            }
+        }
+
+        async function loadMovie(movieId) {
+            try {
+                // Detalhes do filme
+                const movieUrl = `https://api.themoviedb.org/3/movie/${movieId}?api_key=${TMDB_API_KEY}&language=pt-BR`;
+                const movieResponse = await fetch(movieUrl);
+                const movieData = await movieResponse.json();
+
+                // Configurar player
+                const playerUrl = `${STREAM_BASE_URL}/filme/${movieData.imdb_id || movieId}#noLink`;
+                player.src = playerUrl;
+
+                // Atualizar informações
+                contentTitle.textContent = movieData.title;
+                contentMeta.innerHTML = `
+                    <span>${movieData.release_date ? new Date(movieData.release_date).getFullYear() : 'N/A'}</span>
+                    <span>${movieData.runtime ? `${movieData.runtime} min` : ''}</span>
+                    <span>${movieData.genres ? movieData.genres.map(g => g.name).join(', ') : ''}</span>
+                `;
+                contentDescription.textContent = movieData.overview || 'Descrição não disponível.';
+
+                // Atualizar estado
+                currentContent = {
+                    type: 'movie',
+                    id: movieId,
+                    title: movieData.title
+                };
+
+                // Esconder controles de episódios para filmes
+                navigationControls.style.display = 'none';
+                contentInfo.style.display = 'block';
+                loadingState.style.display = 'none';
+
+                // Carregar recomendações
+                await loadMovieRecommendations(movieId);
+            } catch (error) {
+                throw error;
+            }
+        }
+
+        async function loadTvShow(tvId, seasonNumber, episodeNumber) {
+            try {
+                loadingState.style.display = 'flex';
+                
+                // Detalhes da série
+                const tvUrl = `https://api.themoviedb.org/3/tv/${tvId}?api_key=${TMDB_API_KEY}&language=pt-BR`;
+                const tvResponse = await fetch(tvUrl);
+                const tvData = await tvResponse.json();
+
+                // Detalhes da temporada
+                const seasonUrl = `https://api.themoviedb.org/3/tv/${tvId}/season/${seasonNumber}?api_key=${TMDB_API_KEY}&language=pt-BR`;
+                const seasonResponse = await fetch(seasonUrl);
+                const seasonData = await seasonResponse.json();
+
+                // Encontrar episódio
+                const episodeData = seasonData.episodes.find(ep => ep.episode_number === episodeNumber);
+                if (!episodeData) {
+                    throw new Error('Episódio não encontrado');
                 }
 
-                if (imdbId) {
-                    // Filmes: player/filme/ttID_DO_FILME + personalização
-                    // imdbId já vem como 'tt...' do bot
-                    playerUrl = `${STREAM_BASE_URL}/filme/${imdbId}${PLAYER_CUSTOM_FILME}`;
-                    
-                    const findUrl = `https://api.themoviedb.org/3/find/${imdbId}?api_key=${tmdbApiKey}&external_source=imdb_id&language=pt-BR`;
-                    const findData = await (await fetch(findUrl)).json();
-                    if (findData.movie_results?.length) {
-                        const movie = findData.movie_results[0];
-                        if (movie.backdrop_path) {
-                            backdropUrl = `https://image.tmdb.org/t/p/original${movie.backdrop_path}`;
-                        }
-                    }
-                } else if (tmdbId && season && episode) {
-                    // Séries: player/serie/ID_DA_SERIE/NUMERO_DA_TEMPORADA/NUMERO_DO_EPISODIO + personalização
-                    playerUrl = `${STREAM_BASE_URL}/serie/${tmdbId}/${season}/${episode}${PLAYER_CUSTOM_SERIE}`;
-                    
-                    const seriesUrl = `https://api.themoviedb.org/3/tv/${tmdbId}?api_key=${tmdbApiKey}&language=pt-BR`;
-                    const seriesData = await (await fetch(seriesUrl)).json();
-                    if (seriesData.backdrop_path) {
-                        backdropUrl = `https://image.tmdb.org/t/p/original${seriesData.backdrop_path}`;
+                // Configurar player
+                const playerUrl = `${STREAM_BASE_URL}/serie/${tvId}/${seasonNumber}/${episodeNumber}#noEpList#noLink`;
+                player.src = playerUrl;
+
+                // Atualizar informações
+                contentTitle.textContent = `${tvData.name} - T${seasonNumber} E${episodeNumber}`;
+                contentMeta.innerHTML = `
+                    <span>Temporada ${seasonNumber}</span>
+                    <span>Episódio ${episodeNumber}</span>
+                    <span>${episodeData.runtime ? `${episodeData.runtime} min` : ''}</span>
+                `;
+                contentDescription.textContent = episodeData.overview || tvData.overview || 'Descrição não disponível.';
+
+                // Configurar controles de navegação
+                prevButton.onclick = () => changeEpisode(-1);
+                nextButton.onclick = () => changeEpisode(1);
+                changeSeasonButton.onclick = () => changeSeason();
+
+                // Atualizar estado
+                currentContent = {
+                    type: 'tv',
+                    id: tvId,
+                    season: seasonNumber,
+                    episode: episodeNumber,
+                    title: tvData.name
+                };
+
+                // Mostrar controles
+                navigationControls.style.display = 'flex';
+                contentInfo.style.display = 'block';
+                loadingState.style.display = 'none';
+
+                // Carregar recomendações
+                await loadTvRecommendations(tvId);
+            } catch (error) {
+                throw error;
+            }
+        }
+
+        async function changeEpisode(direction) {
+            if (currentContent.type !== 'tv') return;
+
+            const newEpisode = currentContent.episode + direction;
+            let newSeason = currentContent.season;
+
+            try {
+                // Verificar se precisa mudar de temporada
+                const seasonUrl = `https://api.themoviedb.org/3/tv/${currentContent.id}/season/${newSeason}?api_key=${TMDB_API_KEY}&language=pt-BR`;
+                const seasonResponse = await fetch(seasonUrl);
+                const seasonData = await seasonResponse.json();
+
+                if (direction === 1 && newEpisode > seasonData.episodes.length) {
+                    // Próxima temporada
+                    newSeason++;
+                    await loadTvShow(currentContent.id, newSeason, 1);
+                } else if (direction === -1 && newEpisode < 1) {
+                    // Temporada anterior
+                    if (newSeason > 1) {
+                        newSeason--;
+                        const prevSeasonUrl = `https://api.themoviedb.org/3/tv/${currentContent.id}/season/${newSeason}?api_key=${TMDB_API_KEY}&language=pt-BR`;
+                        const prevSeasonResponse = await fetch(prevSeasonUrl);
+                        const prevSeasonData = await prevSeasonResponse.json();
+                        await loadTvShow(currentContent.id, newSeason, prevSeasonData.episodes.length);
                     }
                 } else {
-                    throw new Error('Sua solicitação não atende aos requisitos do sistema.');
+                    // Mesma temporada
+                    await loadTvShow(currentContent.id, newSeason, newEpisode);
+                }
+            } catch (error) {
+                showError('Erro ao mudar episódio: ' + error.message);
+            }
+        }
+
+        function changeSeason() {
+            if (currentContent.type !== 'tv') return;
+
+            const seasonNumber = prompt('Digite o número da temporada:');
+            if (seasonNumber && !isNaN(seasonNumber) && parseInt(seasonNumber) > 0) {
+                loadTvShow(currentContent.id, parseInt(seasonNumber), 1);
+            }
+        }
+
+        async function loadMovieRecommendations(movieId) {
+            try {
+                const recommendationsUrl = `https://api.themoviedb.org/3/movie/${movieId}/recommendations?api_key=${TMDB_API_KEY}&language=pt-BR&page=1`;
+                const response = await fetch(recommendationsUrl);
+                const data = await response.json();
+                
+                displayRecommendations(data.results || [], 'movie');
+            } catch (error) {
+                console.error('Erro ao carregar recomendações:', error);
+                await loadPopularContent(); // Fallback para conteúdo popular
+            }
+        }
+
+        async function loadTvRecommendations(tvId) {
+            try {
+                const recommendationsUrl = `https://api.themoviedb.org/3/tv/${tvId}/recommendations?api_key=${TMDB_API_KEY}&language=pt-BR&page=1`;
+                const response = await fetch(recommendationsUrl);
+                const data = await response.json();
+                
+                displayRecommendations(data.results || [], 'tv');
+            } catch (error) {
+                console.error('Erro ao carregar recomendações:', error);
+                await loadPopularContent(); // Fallback para conteúdo popular
+            }
+        }
+
+        async function loadPopularContent() {
+            try {
+                // Carregar filmes e séries populares
+                const [moviesResponse, tvResponse] = await Promise.all([
+                    fetch(`https://api.themoviedb.org/3/movie/popular?api_key=${TMDB_API_KEY}&language=pt-BR&page=1`),
+                    fetch(`https://api.themoviedb.org/3/tv/popular?api_key=${TMDB_API_KEY}&language=pt-BR&page=1`)
+                ]);
+
+                const moviesData = await moviesResponse.json();
+                const tvData = await tvResponse.json();
+
+                // Combinar e embaralhar resultados
+                const allContent = [...(moviesData.results || []), ...(tvData.results || [])]
+                    .sort(() => 0.5 - Math.random())
+                    .slice(0, 12);
+
+                displayRecommendations(allContent, 'mixed');
+            } catch (error) {
+                console.error('Erro ao carregar conteúdo popular:', error);
+                showError('Não foi possível carregar as recomendações');
+            }
+        }
+
+        function displayRecommendations(items, type) {
+            recommendationsGrid.innerHTML = '';
+
+            items.slice(0, 12).forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'recommendation-card';
+                
+                const posterPath = item.poster_path 
+                    ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
+                    : DEFAULT_POSTER;
+                
+                const title = item.title || item.name;
+                const year = item.release_date 
+                    ? new Date(item.release_date).getFullYear()
+                    : (item.first_air_date ? new Date(item.first_air_date).getFullYear() : 'N/A');
+                
+                const mediaType = type === 'mixed' ? (item.title ? 'movie' : 'tv') : type;
+
+                card.innerHTML = `
+                    <img src="${posterPath}" alt="${title}" class="recommendation-poster" onerror="this.src='${DEFAULT_POSTER}'">
+                    <div class="recommendation-info">
+                        <div class="recommendation-title">${title}</div>
+                        <div class="recommendation-year">${year}</div>
+                    </div>
+                `;
+
+                card.onclick = () => {
+                    if (mediaType === 'movie') {
+                        loadMovie(item.id);
+                    } else {
+                        loadTvShow(item.id, 1, 1);
+                    }
+                };
+
+                recommendationsGrid.appendChild(card);
+            });
+        }
+
+        // Busca
+        searchButton.onclick = performSearch;
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') performSearch();
+        });
+
+        async function performSearch() {
+            const query = searchInput.value.trim();
+            if (!query) return;
+
+            try {
+                loadingState.style.display = 'flex';
+                
+                // Buscar filmes e séries
+                const [moviesResponse, tvResponse] = await Promise.all([
+                    fetch(`https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&language=pt-BR&page=1`),
+                    fetch(`https://api.themoviedb.org/3/search/tv?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&language=pt-BR&page=1`)
+                ]);
+
+                const moviesData = await moviesResponse.json();
+                const tvData = await tvResponse.json();
+
+                // Combinar resultados
+                const allResults = [
+                    ...(moviesData.results || []).map(item => ({ ...item, media_type: 'movie' })),
+                    ...(tvData.results || []).map(item => ({ ...item, media_type: 'tv' }))
+                ].sort((a, b) => b.popularity - a.popularity);
+
+                if (allResults.length === 0) {
+                    showError('Nenhum resultado encontrado para: ' + query);
+                    return;
                 }
 
-                updateBackground(backdropUrl);
-                document.getElementById('player').src = playerUrl;
+                // Mostrar resultados
+                displayRecommendations(allResults, 'mixed');
+                loadingState.style.display = 'none';
+
+                // Se houver player ativo, manter as informações
+                if (currentContent.type) {
+                    contentInfo.style.display = 'block';
+                    navigationControls.style.display = currentContent.type === 'tv' ? 'flex' : 'none';
+                }
 
             } catch (error) {
-                console.error(error);
-                // Opcional: Mostrar uma mensagem de erro na tela para o usuário
-                // document.getElementById('player').src = 'URL_DO_PLAYER_DE_ERRO_OU_MSG_DE_FALHA';
+                showError('Erro na busca: ' + error.message);
             }
-        })();
+        }
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorState.style.display = 'block';
+            loadingState.style.display = 'none';
+        }
+
+        // Esconder erro
+        function hideError() {
+            errorState.style.display = 'none';
+        }
     </script>
 </body>
-</html>
+    </html>
