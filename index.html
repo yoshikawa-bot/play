@@ -214,51 +214,59 @@
             margin-left: 0.5rem;
         }
 
-        /* Favoritos Dropdown - Aprimorado */
-        .favorites-dropdown {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            width: 380px;
+        /* Menu de Favoritos - NOVO DESIGN */
+        .favorites-menu {
+            position: fixed;
+            top: 0;
+            right: -50%;
+            width: 50%;
+            height: 100%;
             background: var(--overlay-bg);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            max-height: 500px;
-            overflow-y: auto;
-            z-index: 1000;
-            display: none;
             backdrop-filter: blur(10px);
-            margin-top: 0.5rem;
+            z-index: 1000;
+            transition: right 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+            overflow-y: auto;
         }
 
-        .favorites-dropdown.open {
-            display: block;
+        .favorites-menu.open {
+            right: 0;
         }
 
         .favorites-header {
-            padding: 1rem;
+            padding: 1.5rem;
             border-bottom: 1px solid var(--border);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            background: var(--header-bg);
         }
 
         .favorites-actions {
             display: flex;
             gap: 0.5rem;
-            padding: 0.5rem 1rem;
+            padding: 1rem 1.5rem;
             border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
         }
 
         .favorites-action-btn {
             background: var(--card-bg);
             border: 1px solid var(--border);
-            border-radius: 4px;
-            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            padding: 0.6rem 1rem;
             color: var(--text);
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             cursor: pointer;
             transition: all 0.2s;
+            flex: 1;
+            min-width: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
 
         .favorites-action-btn:hover {
@@ -267,30 +275,33 @@
         }
 
         .favorites-list {
-            padding: 0.5rem;
+            padding: 1rem;
+            flex: 1;
+            overflow-y: auto;
         }
 
         .favorite-item {
             display: flex;
             align-items: center;
-            padding: 0.75rem;
-            border-radius: 6px;
-            margin-bottom: 0.5rem;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
             cursor: pointer;
             transition: background-color 0.2s;
             border: 1px solid transparent;
+            background: var(--card-bg);
         }
 
         .favorite-item:hover {
-            background-color: var(--card-bg);
+            background-color: rgba(220, 38, 38, 0.1);
             border-color: var(--primary);
         }
 
         .favorite-poster {
-            width: 45px;
-            height: 65px;
+            width: 50px;
+            height: 70px;
             object-fit: cover;
-            border-radius: 4px;
+            border-radius: 6px;
             margin-right: 1rem;
             flex-shrink: 0;
         }
@@ -301,7 +312,7 @@
 
         .favorite-title {
             font-weight: 500;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             margin-bottom: 0.25rem;
         }
 
@@ -315,7 +326,7 @@
             border: none;
             color: var(--error);
             cursor: pointer;
-            padding: 0.25rem;
+            padding: 0.5rem;
             border-radius: 4px;
             transition: background-color 0.2s;
         }
@@ -325,9 +336,25 @@
         }
 
         .no-favorites {
-            padding: 2rem 1rem;
+            padding: 3rem 1rem;
             text-align: center;
             color: var(--secondary);
+        }
+
+        /* Overlay para fechar o menu */
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+
+        .menu-overlay.active {
+            display: block;
         }
 
         /* Container Principal */
@@ -359,8 +386,8 @@
             border-radius: 12px;
         }
 
-        /* Botão de Favoritar na Página de Exibição */
-        .player-favorite-btn {
+        /* Botão de Favoritar na Página de Exibição - REMOVIDO DO PLAYER */
+        /* .player-favorite-btn {
             position: absolute;
             top: 15px;
             right: 15px;
@@ -376,10 +403,30 @@
             align-items: center;
             transition: all 0.2s;
             z-index: 10;
+        } */
+
+        /* Botão de Favoritar na página de exibição - NOVA POSIÇÃO */
+        .player-favorite-btn {
+            position: fixed;
+            bottom: 7rem;
+            right: 2rem;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s;
+            z-index: 90;
         }
 
         .player-favorite-btn:hover {
-            background: rgba(220, 38, 38, 0.9);
+            background-color: var(--primary-dark);
             transform: scale(1.1);
         }
 
@@ -852,14 +899,26 @@
                 height: 210px;
             }
 
-            .favorites-dropdown {
-                width: 320px;
-                right: -1rem;
-            }
-
             .back-to-home {
                 bottom: 1rem;
                 right: 1rem;
+            }
+
+            .player-favorite-btn {
+                bottom: 6rem;
+                right: 1rem;
+            }
+
+            /* Menu de favoritos responsivo */
+            .favorites-menu {
+                width: 85%;
+                right: -85%;
+            }
+
+            .favorites-action-btn {
+                min-width: 100px;
+                font-size: 0.8rem;
+                padding: 0.5rem 0.8rem;
             }
 
             /* Seletor de episódios otimizado para mobile */
@@ -909,8 +968,9 @@
                 margin-right: 0.75rem;
             }
 
-            .favorites-dropdown {
-                width: 280px;
+            .favorites-menu {
+                width: 90%;
+                right: -90%;
             }
         }
     </style>
@@ -935,43 +995,47 @@
                     <div class="search-results" id="searchResults"></div>
                 </div>
                 
+                <!-- Botão de menu de favoritos atualizado com símbolo de + -->
                 <button class="favorite-btn" id="headerFavoriteBtn" title="Meus Favoritos">
-                    <i class="fas fa-heart"></i>
+                    <i class="fas fa-plus"></i>
                 </button>
-                
-                <div class="favorites-dropdown" id="favoritesDropdown">
-                    <div class="favorites-header">
-                        <h3>Meus Favoritos</h3>
-                    </div>
-                    <div class="favorites-actions">
-                        <button class="favorites-action-btn" id="exportFavorites">
-                            <i class="fas fa-download"></i> Exportar
-                        </button>
-                        <button class="favorites-action-btn" id="importFavorites">
-                            <i class="fas fa-upload"></i> Importar
-                        </button>
-                        <button class="favorites-action-btn" id="clearFavorites">
-                            <i class="fas fa-trash"></i> Limpar
-                        </button>
-                    </div>
-                    <div class="favorites-list" id="favoritesList">
-                        <div class="no-favorites" id="noFavoritesMsg">
-                            <i class="fas fa-heart-broken" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
-                            <p>Nenhum favorito adicionado</p>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </header>
+
+    <!-- Menu de favoritos - NOVO DESIGN -->
+    <div class="menu-overlay" id="menuOverlay"></div>
+    <div class="favorites-menu" id="favoritesMenu">
+        <div class="favorites-header">
+            <h3>Meus Favoritos</h3>
+            <button class="remove-favorite" id="closeFavoritesMenu">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="favorites-actions">
+            <button class="favorites-action-btn" id="exportFavorites">
+                <i class="fas fa-download"></i> Exportar
+            </button>
+            <button class="favorites-action-btn" id="importFavorites">
+                <i class="fas fa-upload"></i> Importar
+            </button>
+            <button class="favorites-action-btn" id="clearFavorites">
+                <i class="fas fa-trash"></i> Limpar
+            </button>
+        </div>
+        <div class="favorites-list" id="favoritesList">
+            <div class="no-favorites" id="noFavoritesMsg">
+                <i class="fas fa-heart-broken" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+                <p>Nenhum favorito adicionado</p>
+            </div>
+        </div>
+    </div>
 
     <main class="container">
         <!-- Player View -->
         <div id="playerWrapper" style="display: none;">
             <div class="player-wrapper">
-                <button class="player-favorite-btn" id="playerFavoriteBtn" title="Adicionar aos Favoritos">
-                    <i class="fas fa-heart"></i>
-                </button>
+                <!-- Botão de favoritar REMOVIDO do player -->
                 <iframe id="player" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen loading="lazy" title="Yoshikawa Player"></iframe>
             </div>
 
@@ -1052,6 +1116,12 @@
         </div>
     </main>
 
+    <!-- Botão de favoritar na página de exibição - NOVA POSIÇÃO (acima do botão voltar) -->
+    <button class="player-favorite-btn" id="playerFavoriteBtn" title="Adicionar aos Favoritos">
+        <i class="fas fa-heart"></i>
+    </button>
+
+    <!-- Botão Voltar para Home -->
     <button class="back-to-home" id="backToHomeButton" title="Voltar para Home">
         <i class="fas fa-home"></i>
     </button>
@@ -1094,15 +1164,17 @@
         const prevButton = document.getElementById('prevButton');
         const nextButton = document.getElementById('nextButton');
         const backToHomeButton = document.getElementById('backToHomeButton');
+        const playerFavoriteBtn = document.getElementById('playerFavoriteBtn');
         const searchQueryDisplay = document.getElementById('searchQueryDisplay');
         const episodeSelector = document.getElementById('episodeSelector');
         const seasonSelect = document.getElementById('seasonSelect');
         const episodeSelect = document.getElementById('episodeSelect');
         const headerFavoriteBtn = document.getElementById('headerFavoriteBtn');
-        const favoritesDropdown = document.getElementById('favoritesDropdown');
+        const favoritesMenu = document.getElementById('favoritesMenu');
+        const menuOverlay = document.getElementById('menuOverlay');
+        const closeFavoritesMenu = document.getElementById('closeFavoritesMenu');
         const favoritesList = document.getElementById('favoritesList');
         const noFavoritesMsg = document.getElementById('noFavoritesMsg');
-        const playerFavoriteBtn = document.getElementById('playerFavoriteBtn');
         const logoHomeLink = document.getElementById('logoHomeLink');
         const exportFavorites = document.getElementById('exportFavorites');
         const importFavorites = document.getElementById('importFavorites');
@@ -1131,7 +1203,7 @@
             const episode = params.get('episode');
 
             try {
-                await loadFavoritesDropdown();
+                await loadFavoritesMenu();
 
                 if (tmdbId && type) {
                     if (type === 'movie') {
@@ -1161,18 +1233,14 @@
                 if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
                     searchResults.style.display = 'none';
                 }
-                if (!headerFavoriteBtn.contains(e.target) && !favoritesDropdown.contains(e.target)) {
-                    favoritesDropdown.classList.remove('open');
-                }
             });
 
-            // Favoritos
-            headerFavoriteBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                favoritesDropdown.classList.toggle('open');
-            });
+            // Menu de favoritos
+            headerFavoriteBtn.addEventListener('click', toggleFavoritesMenu);
+            closeFavoritesMenu.addEventListener('click', closeMenu);
+            menuOverlay.addEventListener('click', closeMenu);
 
-            // Botão de favoritar no player
+            // Botão de favoritar no player (agora na posição fixa)
             playerFavoriteBtn.addEventListener('click', toggleCurrentFavorite);
 
             // Ações de favoritos
@@ -1193,6 +1261,17 @@
                     loadTvShow(currentContent.tmdbId, newSeason, newEpisode);
                 }
             });
+        }
+
+        // Funções do menu de favoritos
+        function toggleFavoritesMenu() {
+            favoritesMenu.classList.toggle('open');
+            menuOverlay.classList.toggle('active');
+        }
+
+        function closeMenu() {
+            favoritesMenu.classList.remove('open');
+            menuOverlay.classList.remove('active');
         }
 
         // Funções de UI
@@ -1216,7 +1295,7 @@
             homeSections.classList.remove('hidden');
             document.title = 'Yoshikawa Player';
             player.src = '';
-            favoritesDropdown.classList.remove('open');
+            closeMenu();
             loadLatestReleases();
             loadPopularContent();
         }
@@ -1226,12 +1305,14 @@
             playerWrapper.style.display = 'block';
             contentInfo.style.display = 'block';
             backToHomeButton.style.display = 'flex';
+            playerFavoriteBtn.style.display = 'flex';
         }
 
         function showSearchResults() {
             hideAll();
             searchResultsSection.classList.add('active');
             backToHomeButton.style.display = 'flex';
+            playerFavoriteBtn.style.display = 'none';
         }
 
         function hideAll() {
@@ -1244,6 +1325,7 @@
             homeSections.classList.add('hidden');
             searchResultsSection.classList.remove('active');
             backToHomeButton.style.display = 'none';
+            playerFavoriteBtn.style.display = 'none';
             searchResults.style.display = 'none';
         }
 
@@ -1653,7 +1735,7 @@
                     e.stopPropagation();
                     toggleFavorite(itemId, mediaType, title, posterPath, year);
                     favoriteBtn.classList.toggle('active');
-                    loadFavoritesDropdown();
+                    loadFavoritesMenu();
                 });
 
                 container.appendChild(card);
@@ -1760,7 +1842,7 @@
             }
             
             saveFavorites(favorites);
-            loadFavoritesDropdown();
+            loadFavoritesMenu();
         }
 
         function toggleCurrentFavorite() {
@@ -1787,7 +1869,7 @@
             }
             
             saveFavorites(favorites);
-            loadFavoritesDropdown();
+            loadFavoritesMenu();
         }
 
         function updatePlayerFavoriteButton() {
@@ -1807,11 +1889,11 @@
             let favorites = getFavorites();
             favorites = favorites.filter(fav => !(fav.id === id && fav.type === type));
             saveFavorites(favorites);
-            loadFavoritesDropdown();
+            loadFavoritesMenu();
             updatePlayerFavoriteButton();
         }
 
-        function loadFavoritesDropdown() {
+        function loadFavoritesMenu() {
             const favorites = getFavorites();
             favoritesList.innerHTML = '';
             
@@ -1849,7 +1931,7 @@
                 
                 item.addEventListener('click', (e) => {
                     if (!e.target.closest('.remove-favorite')) {
-                        favoritesDropdown.classList.remove('open');
+                        closeMenu();
                         if (fav.type === 'movie') {
                             loadMovie(fav.id);
                         } else {
@@ -1910,7 +1992,7 @@
                             });
                             
                             saveFavorites(mergedFavorites);
-                            loadFavoritesDropdown();
+                            loadFavoritesMenu();
                             updatePlayerFavoriteButton();
                             alert(`Favoritos importados com sucesso! ${importedFavorites.length} itens processados.`);
                         } else {
@@ -1929,7 +2011,7 @@
         function clearFavoritesList() {
             if (confirm('Tem certeza que deseja limpar todos os favoritos? Esta ação não pode ser desfeita.')) {
                 saveFavorites([]);
-                loadFavoritesDropdown();
+                loadFavoritesMenu();
                 updatePlayerFavoriteButton();
                 alert('Todos os favoritos foram removidos.');
             }
