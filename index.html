@@ -66,6 +66,7 @@
             align-items: center;
             gap: 0.75rem;
             flex-shrink: 0;
+            cursor: pointer;
         }
 
         .logo-image {
@@ -75,7 +76,6 @@
             object-fit: cover;
             flex-shrink: 0;
             transition: all 0.3s;
-            cursor: pointer;
         }
 
         .logo-image:hover {
@@ -214,16 +214,16 @@
             margin-left: 0.5rem;
         }
 
-        /* Favoritos Dropdown */
+        /* Favoritos Dropdown - Aprimorado */
         .favorites-dropdown {
             position: absolute;
             top: 100%;
             right: 0;
-            width: 320px;
+            width: 380px;
             background: var(--overlay-bg);
             border: 1px solid var(--border);
             border-radius: 8px;
-            max-height: 400px;
+            max-height: 500px;
             overflow-y: auto;
             z-index: 1000;
             display: none;
@@ -241,6 +241,29 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+        }
+
+        .favorites-actions {
+            display: flex;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .favorites-action-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 0.4rem 0.8rem;
+            color: var(--text);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .favorites-action-btn:hover {
+            background: var(--primary);
+            border-color: var(--primary);
         }
 
         .favorites-list {
@@ -336,6 +359,35 @@
             border-radius: 12px;
         }
 
+        /* Botão de Favoritar na Página de Exibição */
+        .player-favorite-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(0, 0, 0, 0.7);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s;
+            z-index: 10;
+        }
+
+        .player-favorite-btn:hover {
+            background: rgba(220, 38, 38, 0.9);
+            transform: scale(1.1);
+        }
+
+        .player-favorite-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
         /* Controles de Navegação */
         .navigation-controls {
             display: flex;
@@ -405,7 +457,7 @@
             line-height: 1.6;
         }
 
-        /* Seletor de Episódios */
+        /* Seletor de Episódios - Melhorado para Mobile */
         .episode-selector {
             display: none;
             gap: 1rem;
@@ -498,6 +550,26 @@
         .content-grid::-webkit-scrollbar-thumb {
             background: var(--primary);
             border-radius: 4px;
+        }
+
+        /* Indicador de rolagem moderno e minimalista */
+        .content-grid::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .content-grid::-webkit-scrollbar-track {
+            background: transparent;
+            border-radius: 10px;
+        }
+
+        .content-grid::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .content-grid::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
         }
 
         .content-card {
@@ -747,7 +819,7 @@
             text-decoration: underline;
         }
 
-        /* Responsividade */
+        /* Responsividade - Melhorias para Mobile */
         @media (max-width: 768px) {
             .container {
                 padding: 1rem;
@@ -781,13 +853,32 @@
             }
 
             .favorites-dropdown {
-                width: 280px;
+                width: 320px;
                 right: -1rem;
             }
 
             .back-to-home {
                 bottom: 1rem;
                 right: 1rem;
+            }
+
+            /* Seletor de episódios otimizado para mobile */
+            .episode-selector {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .selector-group {
+                justify-content: space-between;
+            }
+
+            .selector-select {
+                min-width: 100px;
+                width: 100%;
+            }
+
+            .selector-label {
+                min-width: 80px;
             }
         }
 
@@ -817,16 +908,18 @@
                 height: 75px;
                 margin-right: 0.75rem;
             }
+
+            .favorites-dropdown {
+                width: 280px;
+            }
         }
     </style>
 </head>
 <body>
     <header class="github-header">
         <div class="header-content">
-            <div class="logo-container">
-                <a href="https://yoshikawa-bot.github.io/site">
-                    <img src="https://yoshikawa-bot.github.io/cache/images/47126171.jpg" alt="Yoshikawa Bot" class="logo-image">
-                </a>
+            <div class="logo-container" id="logoHomeLink">
+                <img src="https://yoshikawa-bot.github.io/cache/images/47126171.jpg" alt="Yoshikawa Bot" class="logo-image">
                 <div class="logo-text">
                     <span class="logo-name">Yoshikawa</span>
                     <span class="beta-tag">STREAMING</span>
@@ -850,6 +943,17 @@
                     <div class="favorites-header">
                         <h3>Meus Favoritos</h3>
                     </div>
+                    <div class="favorites-actions">
+                        <button class="favorites-action-btn" id="exportFavorites">
+                            <i class="fas fa-download"></i> Exportar
+                        </button>
+                        <button class="favorites-action-btn" id="importFavorites">
+                            <i class="fas fa-upload"></i> Importar
+                        </button>
+                        <button class="favorites-action-btn" id="clearFavorites">
+                            <i class="fas fa-trash"></i> Limpar
+                        </button>
+                    </div>
                     <div class="favorites-list" id="favoritesList">
                         <div class="no-favorites" id="noFavoritesMsg">
                             <i class="fas fa-heart-broken" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
@@ -865,6 +969,9 @@
         <!-- Player View -->
         <div id="playerWrapper" style="display: none;">
             <div class="player-wrapper">
+                <button class="player-favorite-btn" id="playerFavoriteBtn" title="Adicionar aos Favoritos">
+                    <i class="fas fa-heart"></i>
+                </button>
                 <iframe id="player" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen loading="lazy" title="Yoshikawa Player"></iframe>
             </div>
 
@@ -995,6 +1102,11 @@
         const favoritesDropdown = document.getElementById('favoritesDropdown');
         const favoritesList = document.getElementById('favoritesList');
         const noFavoritesMsg = document.getElementById('noFavoritesMsg');
+        const playerFavoriteBtn = document.getElementById('playerFavoriteBtn');
+        const logoHomeLink = document.getElementById('logoHomeLink');
+        const exportFavorites = document.getElementById('exportFavorites');
+        const importFavorites = document.getElementById('importFavorites');
+        const clearFavorites = document.getElementById('clearFavorites');
 
         // Estado atual
         let currentContent = {
@@ -1038,6 +1150,9 @@
         });
 
         function setupEventListeners() {
+            // Logo como link para home
+            logoHomeLink.addEventListener('click', showHome);
+            
             // Busca
             searchInput.addEventListener('input', handleSearchInput);
             searchButton.onclick = performSearch;
@@ -1056,6 +1171,14 @@
                 e.stopPropagation();
                 favoritesDropdown.classList.toggle('open');
             });
+
+            // Botão de favoritar no player
+            playerFavoriteBtn.addEventListener('click', toggleCurrentFavorite);
+
+            // Ações de favoritos
+            exportFavorites.addEventListener('click', exportFavoritesList);
+            importFavorites.addEventListener('click', importFavoritesList);
+            clearFavorites.addEventListener('click', clearFavoritesList);
 
             // Navegação
             prevButton.onclick = () => changeEpisode(-1);
@@ -1238,6 +1361,9 @@
                     title: movieData.title
                 };
 
+                // Atualizar botão de favoritar
+                updatePlayerFavoriteButton();
+
                 showPlayerView();
                 navigationControls.style.display = 'none';
                 episodeSelector.classList.remove('active');
@@ -1291,6 +1417,9 @@
                 `;
                 contentDescription.textContent = episodeData.overview || tvData.overview || 'Descrição não disponível';
                 document.title = `${tvData.name} S${seasonNumber} E${episodeNumber}`;
+
+                // Atualizar botão de favoritar
+                updatePlayerFavoriteButton();
 
                 await setupEpisodeSelector(seasonNumber, episodeNumber, seasonData);
                 prevButton.disabled = (seasonNumber === 1 && episodeNumber === 1);
@@ -1634,11 +1763,52 @@
             loadFavoritesDropdown();
         }
 
+        function toggleCurrentFavorite() {
+            if (!currentContent.id || !currentContent.type) return;
+            
+            const favorites = getFavorites();
+            const existingIndex = favorites.findIndex(fav => 
+                fav.id === currentContent.id && fav.type === currentContent.type
+            );
+            
+            if (existingIndex !== -1) {
+                favorites.splice(existingIndex, 1);
+                playerFavoriteBtn.classList.remove('active');
+            } else {
+                const poster = currentContent.poster || DEFAULT_POSTER;
+                favorites.push({ 
+                    id: currentContent.id, 
+                    type: currentContent.type, 
+                    title: currentContent.title, 
+                    poster: poster,
+                    year: currentContent.year || ''
+                });
+                playerFavoriteBtn.classList.add('active');
+            }
+            
+            saveFavorites(favorites);
+            loadFavoritesDropdown();
+        }
+
+        function updatePlayerFavoriteButton() {
+            const favorites = getFavorites();
+            const isFavorite = favorites.some(fav => 
+                fav.id === currentContent.id && fav.type === currentContent.type
+            );
+            
+            if (isFavorite) {
+                playerFavoriteBtn.classList.add('active');
+            } else {
+                playerFavoriteBtn.classList.remove('active');
+            }
+        }
+
         function removeFavorite(id, type) {
             let favorites = getFavorites();
             favorites = favorites.filter(fav => !(fav.id === id && fav.type === type));
             saveFavorites(favorites);
             loadFavoritesDropdown();
+            updatePlayerFavoriteButton();
         }
 
         function loadFavoritesDropdown() {
@@ -1690,6 +1860,79 @@
 
                 favoritesList.appendChild(item);
             });
+        }
+
+        // Funções avançadas de favoritos
+        function exportFavoritesList() {
+            const favorites = getFavorites();
+            if (favorites.length === 0) {
+                alert('Não há favoritos para exportar');
+                return;
+            }
+            
+            const dataStr = JSON.stringify(favorites, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'yoshikawa_favorites.json';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        function importFavoritesList() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            
+            input.onchange = e => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    try {
+                        const importedFavorites = JSON.parse(event.target.result);
+                        if (Array.isArray(importedFavorites)) {
+                            const currentFavorites = getFavorites();
+                            const mergedFavorites = [...currentFavorites];
+                            
+                            importedFavorites.forEach(fav => {
+                                const exists = mergedFavorites.some(existing => 
+                                    existing.id === fav.id && existing.type === fav.type
+                                );
+                                if (!exists) {
+                                    mergedFavorites.push(fav);
+                                }
+                            });
+                            
+                            saveFavorites(mergedFavorites);
+                            loadFavoritesDropdown();
+                            updatePlayerFavoriteButton();
+                            alert(`Favoritos importados com sucesso! ${importedFavorites.length} itens processados.`);
+                        } else {
+                            alert('Arquivo inválido. O arquivo deve conter uma lista de favoritos.');
+                        }
+                    } catch (error) {
+                        alert('Erro ao importar favoritos: ' + error.message);
+                    }
+                };
+                reader.readAsText(file);
+            };
+            
+            input.click();
+        }
+
+        function clearFavoritesList() {
+            if (confirm('Tem certeza que deseja limpar todos os favoritos? Esta ação não pode ser desfeita.')) {
+                saveFavorites([]);
+                loadFavoritesDropdown();
+                updatePlayerFavoriteButton();
+                alert('Todos os favoritos foram removidos.');
+            }
         }
     </script>
 </body>
