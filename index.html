@@ -1166,6 +1166,14 @@
                 </div>
                 <div id="recommendationsGrid" class="content-grid"></div>
             </section>
+            
+            <!-- NOVA SEÇÃO: Calendário de Lançamentos -->
+            <section class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Calendário de Lançamentos</h2>
+                </div>
+                <div id="calendarGrid" class="content-grid"></div>
+            </section>
         </div>
 
         <div class="search-results-section" id="searchResultsSection">
@@ -1231,6 +1239,7 @@
         const searchResultsGrid = document.getElementById('searchResultsGrid');
         const releasesGrid = document.getElementById('releasesGrid');
         const recommendationsGrid = document.getElementById('recommendationsGrid');
+        const calendarGrid = document.getElementById('calendarGrid');
         const loadingState = document.getElementById('loadingState');
         const errorState = document.getElementById('errorState');
         const errorMessage = document.getElementById('errorMessage');
@@ -1376,6 +1385,7 @@
             closeMenu();
             loadLatestReleases();
             loadPopularContent();
+            loadCalendarReleases(); // NOVA FUNÇÃO
         }
 
         function showPlayerView() {
@@ -1502,7 +1512,8 @@
                 if (movieResponse.status === 404) throw new Error('Filme não encontrado');
 
                 const identifier = movieData.external_ids?.imdb_id || tmdbId;
-                const playerUrl = `${STREAM_BASE_URL}/filme/${identifier}#noLink`;
+                // NOVO: URL otimizada para reduzir anúncios e melhorar aparência
+                const playerUrl = `${STREAM_BASE_URL}/filme/${identifier}#noLink#transparent#noBackground`;
                 player.src = playerUrl;
 
                 contentTitle.textContent = movieData.title;
@@ -1569,7 +1580,8 @@
                     throw new Error(`Episódio S${seasonNumber} E${episodeNumber} não encontrado`);
                 }
 
-                const playerUrl = `${STREAM_BASE_URL}/serie/${tmdbId}/${seasonNumber}/${episodeNumber}#noEpList#noLink`;
+                // NOVO: URL otimizada para reduzir anúncios e melhorar aparência
+                const playerUrl = `${STREAM_BASE_URL}/serie/${tmdbId}/${seasonNumber}/${episodeNumber}#noEpList#noLink#transparent#noBackground`;
                 player.src = playerUrl;
                 
                 const episodeTitle = episodeData.name || `Episódio ${episodeNumber}`;
@@ -1753,6 +1765,116 @@
             } catch (error) {
                 console.error('Erro ao carregar conteúdo popular:', error);
             }
+        }
+
+        // NOVA FUNÇÃO: Calendário de lançamentos usando a API SuperFlux
+        async function loadCalendarReleases() {
+            try {
+                const response = await fetch('https://superflixapi.asia/calendario.php');
+                const calendarData = await response.json();
+                
+                // Processar dados do calendário
+                const calendarItems = calendarData.slice(0, 15).map(item => {
+                    return {
+                        id: item.tmdb_id,
+                        title: item.title,
+                        poster_path: item.poster_path,
+                        media_type: 'tv', // Assumindo que o calendário é para séries
+                        release_date: item.air_date,
+                        episode_title: item.episode_title,
+                        episode_number: item.episode_number
+                    };
+                });
+                
+                displayCalendarGrid(calendarItems, calendarGrid);
+            } catch (error) {
+                console.error('Erro ao carregar calendário:', error);
+                // Fallback para TMDB se a API do calendário falhar
+                loadCalendarFallback();
+            }
+        }
+
+        // Fallback para o calendário usando TMDB
+        async function loadCalendarFallback() {
+            try {
+                const response = await fetch(`https://api.themoviedb.org/3/tv/on_the_air?api_key=${TMDB_API_KEY}&language=pt-BR&page=1`);
+                const data = await response.json();
+                
+                const calendarItems = (data.results || []).slice(0, 15).map(item => ({
+                    ...item,
+                    media_type: 'tv'
+                }));
+                
+                displayCalendarGrid(calendarItems, calendarGrid);
+            } catch (error) {
+                console.error('Erro ao carregar fallback do calendário:', error);
+            }
+        }
+
+        function displayCalendarGrid(items, container) {
+            container.innerHTML = '';
+
+            items.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'content-card';
+                
+                const posterPath = item.poster_path 
+                    ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
+                    : DEFAULT_POSTER;
+                
+                const title = item.title || item.name;
+                const year = item.release_date 
+                    ? new Date(item.release_date).getFullYear()
+                    : (item.first_air_date ? new Date(item.first_air_date).getFullYear() : 'N/A');
+                
+                const mediaType = 'tv'; // Calendário é principalmente para séries
+                const itemId = item.id;
+                
+                const favorites = getFavorites();
+                const isFavorite = favorites.some(fav => fav.id == itemId && fav.type === mediaType);
+
+                // Informação adicional para episódios
+                const episodeInfo = item.episode_title ? 
+                    `<div class="content-episode">${item.episode_number ? `Ep. ${item.episode_number}: ` : ''}${item.episode_title}</div>` : '';
+
+                card.innerHTML = `
+                    <img src="${posterPath}" alt="${title}" class="content-poster" onerror="this.src='${DEFAULT_POSTER}'">
+                    <button class="favorite-btn ${isFavorite ? 'active' : ''}" data-id="${itemId}" data-type="${mediaType}" data-title="${title}" data-poster="${posterPath}" data-year="${year}">
+                        <i class="fas fa-heart"></i>
+                    </button>
+                    <div class="content-info-card">
+                        <div class="content-title-card">${title}</div>
+                        ${episodeInfo}
+                        <div class="content-year">${year}</div>
+                    </div>
+                `;
+
+                card.onclick = () => {
+                    loadTvShow(itemId, 1, 1);
+                };
+
+                const favoriteBtn = card.querySelector('.favorite-btn');
+                favoriteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const wasFavorite = favoriteBtn.classList.contains('active');
+                    toggleFavorite(itemId, mediaType, title, posterPath, year);
+                    
+                    // Adiciona/remove a classe 'active' para a animação
+                    if (!wasFavorite) {
+                        favoriteBtn.classList.add('active');
+                        // Força reflow para garantir a animação ao adicionar
+                        favoriteBtn.querySelector('i').style.animation = 'none';
+                        void favoriteBtn.querySelector('i').offsetWidth; 
+                        favoriteBtn.querySelector('i').style.animation = 'heart-pop 0.5s'; 
+                    } else {
+                        // Remove imediatamente a cor ao desfavoritar
+                        favoriteBtn.classList.remove('active');
+                    }
+                    loadFavoritesMenu();
+                });
+
+                container.appendChild(card);
+            });
         }
 
         async function loadMovieRecommendations(movieId) {
@@ -2130,4 +2252,4 @@
         }
     </script>
 </body>
-    </html>
+                </html>
