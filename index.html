@@ -1215,7 +1215,7 @@
     <script>
         // Configurações
         const TMDB_API_KEY = '66223dd3ad2885cf1129b181c7826287';
-        const VIDSRC_BASE_URL = 'https://vidsrc-embed.ru/embed';
+        const STREAM_BASE_URL = 'https://superflixapi.blog';
         const DEFAULT_POSTER = 'https://yoshikawa-bot.github.io/cache/images/6e595b38.jpg';
 
         // Elementos DOM
@@ -1265,8 +1265,7 @@
             episode: null,
             title: null,
             totalSeasons: 0,
-            seasonDetails: [],
-            currentSeasonEpisodes: []
+            seasonDetails: []
         };
         
         let searchTimeout;
@@ -1344,13 +1343,13 @@
         function toggleFavoritesMenu() {
             favoritesMenu.classList.toggle('open');
             menuOverlay.classList.toggle('active');
-            headerFavoriteBtn.classList.toggle('menu-open');
+            headerFavoriteBtn.classList.toggle('menu-open'); // ANIMAÇÃO TOGGLE
         }
 
         function closeMenu() {
             favoritesMenu.classList.remove('open');
             menuOverlay.classList.remove('active');
-            headerFavoriteBtn.classList.remove('menu-open');
+            headerFavoriteBtn.classList.remove('menu-open'); // ANIMAÇÃO TOGGLE
         }
 
         // Funções de UI
@@ -1492,7 +1491,7 @@
             searchResults.style.display = 'block';
         }
 
-        // Funções de conteúdo - ATUALIZADAS PARA VIDSRC
+        // Funções de conteúdo
         async function loadMovie(tmdbId) {
             showLoading();
             try {
@@ -1502,8 +1501,8 @@
 
                 if (movieResponse.status === 404) throw new Error('Filme não encontrado');
 
-                // Usar a API do Vidsrc com legendas em português
-                const playerUrl = `${VIDSRC_BASE_URL}/movie?tmdb=${tmdbId}&ds_lang=pt`;
+                const identifier = movieData.external_ids?.imdb_id || tmdbId;
+                const playerUrl = `${STREAM_BASE_URL}/filme/${identifier}#noLink`;
                 player.src = playerUrl;
 
                 contentTitle.textContent = movieData.title;
@@ -1570,8 +1569,7 @@
                     throw new Error(`Episódio S${seasonNumber} E${episodeNumber} não encontrado`);
                 }
 
-                // Usar a API do Vidsrc com legendas em português
-                const playerUrl = `${VIDSRC_BASE_URL}/tv?tmdb=${tmdbId}&season=${seasonNumber}&episode=${episodeNumber}&ds_lang=pt`;
+                const playerUrl = `${STREAM_BASE_URL}/serie/${tmdbId}/${seasonNumber}/${episodeNumber}#noEpList#noLink`;
                 player.src = playerUrl;
                 
                 const episodeTitle = episodeData.name || `Episódio ${episodeNumber}`;
@@ -1588,8 +1586,9 @@
                 updatePlayerFavoriteButton();
 
                 await setupEpisodeSelector(seasonNumber, episodeNumber, seasonData);
-                updateNavigationButtons(seasonNumber, episodeNumber, seasonData.episodes.length);
-                
+                prevButton.disabled = (seasonNumber === 1 && episodeNumber === 1);
+                nextButton.disabled = false;
+
                 showPlayerView();
                 navigationControls.style.display = 'flex';
                 episodeSelector.classList.add('active');
@@ -1657,15 +1656,6 @@
             }
         }
 
-        function updateNavigationButtons(currentSeason, currentEpisode, currentSeasonEpisodeCount) {
-            // Verificar se é o primeiro episódio da primeira temporada
-            prevButton.disabled = (currentSeason === 1 && currentEpisode === 1);
-            
-            // Verificar se é o último episódio da última temporada
-            const lastSeason = currentContent.seasonDetails[currentContent.seasonDetails.length - 1];
-            nextButton.disabled = (currentSeason === lastSeason.season_number && currentEpisode === currentSeasonEpisodeCount);
-        }
-
         async function changeEpisode(direction) {
             if (currentContent.type !== 'tv') return;
 
@@ -1675,14 +1665,16 @@
             try {
                 showLoading();
                 
-                // Buscar detalhes da temporada atual para contar episódios
-                const currentSeasonUrl = `https://api.themoviedb.org/3/tv/${currentContent.tmdbId}/season/${newSeason}?api_key=${TMDB_API_KEY}&language=pt-BR`;
-                const currentSeasonResponse = await fetch(currentSeasonUrl);
-                const currentSeasonData = await currentSeasonResponse.json();
-                const currentSeasonEpisodeCount = currentSeasonData.episodes.length;
+                const currentSeasonDetail = currentContent.seasonDetails.find(s => s.season_number === newSeason);
+                if (!currentSeasonDetail) throw new Error('Detalhes da temporada não encontrados');
+                
+                // Busca detalhes da temporada para contar episódios com mais precisão
+                const seasonUrl = `https://api.themoviedb.org/3/tv/${currentContent.tmdbId}/season/${newSeason}?api_key=${TMDB_API_KEY}&language=pt-BR`;
+                const seasonResponse = await fetch(seasonUrl);
+                const seasonData = await seasonResponse.json();
+                const currentSeasonEpisodeCount = seasonData.episodes.length;
                 
                 if (direction === 1) {
-                    // Próximo episódio
                     if (newEpisode > currentSeasonEpisodeCount) {
                         const nextSeason = currentContent.seasonDetails.find(s => s.season_number === newSeason + 1);
                         if (nextSeason) {
@@ -1695,7 +1687,6 @@
                         }
                     }
                 } else if (direction === -1) {
-                    // Episódio anterior
                     if (newEpisode < 1) {
                         const prevSeason = currentContent.seasonDetails.find(s => s.season_number === newSeason - 1);
                         if (prevSeason) {
@@ -1834,9 +1825,10 @@
                     const wasFavorite = favoriteBtn.classList.contains('active');
                     toggleFavorite(itemId, mediaType, title, posterPath, year);
                     
-                    // Atualiza o estado visual do botão
+                    // Adiciona/remove a classe 'active' para a animação
                     if (!wasFavorite) {
                         favoriteBtn.classList.add('active');
+                        // Força reflow para garantir a animação ao adicionar
                         favoriteBtn.querySelector('i').style.animation = 'none';
                         void favoriteBtn.querySelector('i').offsetWidth; 
                         favoriteBtn.querySelector('i').style.animation = 'heart-pop 0.5s'; 
@@ -1929,7 +1921,7 @@
             });
         }
 
-        // Favoritos - CORRIGIDO O PROBLEMA DAS CORES
+        // Favoritos
         function getFavorites() {
             const favorites = localStorage.getItem('yoshikawa_favorites');
             return favorites ? JSON.parse(favorites) : [];
